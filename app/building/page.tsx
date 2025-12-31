@@ -52,7 +52,7 @@ export default function BuildingPage() {
         <section className="pt-32 pb-16 px-6">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight tracking-tight">
-              What we're <span className="text-cyan-400">building</span>.
+              What we&apos;re <span className="text-cyan-400">building</span>.
             </h1>
             
             <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />

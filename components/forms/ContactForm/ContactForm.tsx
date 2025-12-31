@@ -115,8 +115,7 @@ export const ContactForm = () => {
       }
 
       setIsSuccess(true);
-    } catch (error) {
-      console.error("Form submission error:", error);
+    } catch {
       setErrors({
         name: "Something went wrong. Please try again or email us directly.",
       });
@@ -134,10 +133,10 @@ export const ContactForm = () => {
             Thanks for reaching out!
           </h2>
           <p className="text-xl text-gray-300 leading-relaxed">
-            We'll get back to you soon.
+            We&apos;ll get back to you soon.
             {formData.intent === "try-app" && (
               <span className="block mt-2">
-                Since you want to try the app, we'll send you access details within 24 hours.
+                Since you want to try the app, we&apos;ll send you access details within 24 hours.
               </span>
             )}
           </p>

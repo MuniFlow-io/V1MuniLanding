@@ -41,7 +41,7 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-4">
-                We're focused on:
+                We&apos;re focused on:
               </h2>
               <div className="h-1 w-20 mx-auto bg-cyan-400/60 rounded-full" />
             </div>
@@ -70,7 +70,7 @@ export default function HomePage() {
                   Workflow Visibility
                 </h3>
                 <p className="text-gray-400 text-lg leading-relaxed">
-                  Seeing what's happening, what's next, and what needs attention.
+                  Seeing what&apos;s happening, what&apos;s next, and what needs attention.
                 </p>
               </Card>
             </div>
@@ -88,7 +88,7 @@ export default function HomePage() {
                 <div className="h-1 w-16 bg-cyan-400 mb-6 rounded-full" />
                 
                 <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
-                  Built by someone who's been in the deals.
+                  Built by someone who&apos;s been in the deals.
                 </h2>
                 
                 <div className="space-y-6 text-lg md:text-xl text-gray-300 leading-relaxed">
@@ -110,7 +110,7 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto text-center space-y-16">
             <div>
               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-4">
-                How we're building this:
+                How we&apos;re building this:
               </h2>
               <div className="h-1 w-20 mx-auto bg-blue-500/60 rounded-full" />
             </div>
@@ -155,11 +155,11 @@ export default function HomePage() {
           
           <div className="max-w-3xl mx-auto text-center space-y-10 relative">
             <h2 className="text-4xl md:text-6xl font-semibold text-white leading-tight">
-              Let's <span className="text-cyan-400">talk</span>.
+              Let&apos;s <span className="text-cyan-400">talk</span>.
             </h2>
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              If you're working in municipal bond deals and this resonates, we'd like to hear from you.
+              If you&apos;re working in municipal bond deals and this resonates, we&apos;d like to hear from you.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">

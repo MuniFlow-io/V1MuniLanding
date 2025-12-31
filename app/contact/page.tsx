@@ -11,13 +11,13 @@ export default function ContactPage() {
         <section className="pt-32 pb-16 px-6">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight tracking-tight">
-              Let's start a <span className="text-cyan-400">conversation</span>.
+              Let&apos;s start a <span className="text-cyan-400">conversation</span>.
             </h1>
             
             <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Whether you want to try the app, share feedback, or just connect—we'd like to hear from you.
+              Whether you want to try the app, share feedback, or just connect—we&apos;d like to hear from you.
             </p>
           </div>
         </section>

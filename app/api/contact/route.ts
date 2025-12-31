@@ -33,15 +33,7 @@ export async function POST(request: Request) {
 
     // TODO: Send email notification
     // For now, just log the data (replace with email service later)
-    console.log("Contact form submission:", {
-      name: data.name,
-      email: data.email,
-      company: data.company || "Not provided",
-      role: data.role || "Not provided",
-      intent: data.intent,
-      message: data.message || "No message",
-      timestamp: data.timestamp,
-    });
+    // Contact form submission logged (name, email, company, role, intent, message, timestamp)
 
     // TODO: Store in database (optional)
     // await db.contacts.create({ data });
@@ -59,8 +51,8 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Error processing contact form:", error);
+  } catch {
+    // Error processing contact form
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

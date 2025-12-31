@@ -59,7 +59,6 @@ export const RadioGroup = ({
                   checked={isSelected}
                   onChange={(e) => onChange(e.target.value)}
                   className="sr-only"
-                  aria-required={required}
                 />
                 <div
                   className={cn(
