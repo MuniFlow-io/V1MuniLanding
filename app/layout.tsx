@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AOSProvider } from "@/components/layout/AOSProvider";
 
 export const metadata: Metadata = {
   title: "MuniFlow - Municipal Bond Deal System",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <AOSProvider>{children}</AOSProvider>
+      </body>
     </html>
   );
 }

@@ -51,39 +51,45 @@ export default function HomePage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
-                  Deal Coordination
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed text-center">
-                  How issuers, counsel, advisors, and lenders move a deal forward—without duplicating work or losing the thread.
-                </p>
-              </Card>
+              <div data-aos="fade-up" data-aos-delay="100">
+                <Card variant="feature" size="large">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                    Deal Coordination
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed text-center">
+                    How issuers, counsel, advisors, and lenders move a deal forward—without duplicating work or losing the thread.
+                  </p>
+                </Card>
+              </div>
 
-              <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
-                  Information Flow
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed text-center">
-                  Where deal terms, drafts, and approvals live—and how updates are tracked without surprise emails.
-                </p>
-              </Card>
+              <div data-aos="fade-up" data-aos-delay="200">
+                <Card variant="feature" size="large">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                    Information Flow
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed text-center">
+                    Where deal terms, drafts, and approvals live—and how updates are tracked without surprise emails.
+                  </p>
+                </Card>
+              </div>
 
-              <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
-                  Workflow Visibility
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed text-center">
-                  Clear visibility into what&apos;s been decided, what&apos;s pending, and what can&apos;t move forward yet.
-                </p>
-              </Card>
+              <div data-aos="fade-up" data-aos-delay="300">
+                <Card variant="feature" size="large">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                    Workflow Visibility
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed text-center">
+                    Clear visibility into what&apos;s been decided, what&apos;s pending, and what can&apos;t move forward yet.
+                  </p>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Proof of Domain Understanding */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large" className="relative overflow-hidden">
               {/* Subtle corner accent */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 blur-3xl pointer-events-none" />
@@ -155,7 +161,7 @@ export default function HomePage() {
 
         {/* What MuniFlow Is */}
         <section className="py-20 px-6 bg-gray-950/50">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div data-aos="fade" className="max-w-3xl mx-auto text-center space-y-6">
             <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
               MuniFlow is not a document generator or a generic project tracker.
             </p>
@@ -167,7 +173,7 @@ export default function HomePage() {
 
         {/* Built from Practice */}
         <section className="py-20 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div data-aos="fade-up" className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-3xl md:text-4xl font-semibold text-white text-center">
               Built from decades of public finance practice.
             </h2>
