@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
+import { sendLeadNotification, sendConfirmationEmail } from "@/lib/email";
 
 interface ContactFormData {
   name: string;
@@ -31,18 +33,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Send email notification
-    // For now, just log the data (replace with email service later)
-    // Contact form submission logged (name, email, company, role, intent, message, timestamp)
+    // 1. Store in Supabase
+    const { error: dbError } = await supabaseAdmin
+      .from('contact_submissions')
+      .insert({
+        name: data.name,
+        email: data.email,
+        company: data.company || null,
+        role: data.role || null,
+        intent: data.intent,
+        message: data.message || null,
+        timestamp: data.timestamp,
+      });
 
-    // TODO: Store in database (optional)
-    // await db.contacts.create({ data });
+    if (dbError) {
+      console.error('Supabase error:', dbError);
+      // Don't fail the request if DB fails - still send emails
+    }
 
-    // TODO: Send confirmation email to user
-    // await sendConfirmationEmail(data.email, data.name);
+    // 2. Send notification email to team (fire and forget - don't block response)
+    sendLeadNotification(data).catch(err => {
+      console.error('Failed to send lead notification:', err);
+    });
 
-    // TODO: Send notification email to team
-    // await sendTeamNotification(data);
+    // 3. Send confirmation email to user (fire and forget)
+    sendConfirmationEmail(data.email, data.name, data.intent).catch(err => {
+      console.error('Failed to send confirmation email:', err);
+    });
 
     return NextResponse.json(
       { 
@@ -51,8 +68,8 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch {
-    // Error processing contact form
+  } catch (error) {
+    console.error('Error processing contact form:', error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
