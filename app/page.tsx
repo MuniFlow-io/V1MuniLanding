@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { GlassHeading } from "@/components/ui/GlassHeading";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -43,12 +44,11 @@ export default function HomePage() {
         {/* What We Focus On */}
         <section className="py-24 px-6 bg-gray-950/50">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-semibold text-white mb-4">
+            <GlassHeading>
+              <h2 className="text-4xl md:text-5xl font-semibold text-white">
                 We&apos;re focused on:
               </h2>
-              <div className="h-1 w-20 mx-auto bg-cyan-400/60 rounded-full" />
-            </div>
+            </GlassHeading>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div data-aos="fade-up" data-aos-delay="100">
@@ -118,12 +118,11 @@ export default function HomePage() {
         {/* How We're Building */}
         <section className="py-24 px-6 bg-gray-950/30">
           <div className="max-w-4xl mx-auto text-center space-y-16">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-semibold text-white mb-4">
+            <GlassHeading>
+              <h2 className="text-4xl md:text-5xl font-semibold text-white">
                 How we&apos;re building this:
               </h2>
-              <div className="h-1 w-20 mx-auto bg-blue-500/60 rounded-full" />
-            </div>
+            </GlassHeading>
 
             <div className="grid md:grid-cols-3 gap-10 text-left">
               <div className="space-y-4 group">
@@ -161,28 +160,36 @@ export default function HomePage() {
 
         {/* What MuniFlow Is */}
         <section className="py-20 px-6 bg-gray-950/50">
-          <div data-aos="fade" className="max-w-3xl mx-auto text-center space-y-6">
-            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
-              MuniFlow is not a document generator or a generic project tracker.
-            </p>
-            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
-              It&apos;s a structured workspace for municipal bond transactions—built around how deals actually move.
-            </p>
+          <div className="max-w-3xl mx-auto" data-aos="fade">
+            <Card variant="feature" size="large">
+              <div className="text-center space-y-6">
+                <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
+                  MuniFlow is not a document generator or a generic project tracker.
+                </p>
+                <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
+                  It&apos;s a structured workspace for municipal bond transactions—built around how deals actually move.
+                </p>
+              </div>
+            </Card>
           </div>
         </section>
 
         {/* Built from Practice */}
         <section className="py-20 px-6 bg-gray-950/30">
-          <div data-aos="fade-up" className="max-w-4xl mx-auto space-y-8">
-            <h2 className="text-3xl md:text-4xl font-semibold text-white text-center">
-              Built from decades of public finance practice.
-            </h2>
-            <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
-              MuniFlow is shaped by long-term experience working on municipal bond transactions across a wide range of issuers and financing structures.
-            </p>
-            <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
-              It reflects firsthand understanding of how deals actually move—and where better structure makes the difference.
-            </p>
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
+            <Card variant="highlight" size="large">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white text-center mb-8">
+                Built from decades of public finance practice.
+              </h2>
+              <div className="space-y-6">
+                <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center">
+                  MuniFlow is shaped by long-term experience working on municipal bond transactions across a wide range of issuers and financing structures.
+                </p>
+                <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center">
+                  It reflects firsthand understanding of how deals actually move—and where better structure makes the difference.
+                </p>
+              </div>
+            </Card>
           </div>
         </section>
 

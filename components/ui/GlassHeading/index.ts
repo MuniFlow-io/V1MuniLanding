@@ -1,0 +1,2 @@
+export { GlassHeading } from "./GlassHeading";
+
