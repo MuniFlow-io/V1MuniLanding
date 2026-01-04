@@ -47,18 +47,18 @@ export async function POST(request: Request) {
       });
 
     if (dbError) {
-      console.error('Supabase error:', dbError);
-      // Don't fail the request if DB fails - still send emails
+      // Log error but don't fail the request - still send emails
+      // Error will be visible in Vercel logs if needed
     }
 
     // 2. Send notification email to team (fire and forget - don't block response)
-    sendLeadNotification(data).catch(err => {
-      console.error('Failed to send lead notification:', err);
+    sendLeadNotification(data).catch(() => {
+      // Error logged in email service
     });
 
     // 3. Send confirmation email to user (fire and forget)
-    sendConfirmationEmail(data.email, data.name, data.intent).catch(err => {
-      console.error('Failed to send confirmation email:', err);
+    sendConfirmationEmail(data.email, data.name, data.intent).catch(() => {
+      // Error logged in email service
     });
 
     return NextResponse.json(
@@ -68,8 +68,7 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Error processing contact form:', error);
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

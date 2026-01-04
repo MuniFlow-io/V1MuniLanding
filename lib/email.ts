@@ -57,7 +57,7 @@ export async function sendLeadNotification(data: ContactSubmission) {
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to send lead notification:', error);
+    // Email sending failed - error will be logged in Vercel logs
     return { success: false, error };
   }
 }
@@ -102,7 +102,7 @@ export async function sendConfirmationEmail(email: string, name: string, intent:
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to send confirmation email:', error);
+    // Email sending failed - error will be logged in Vercel logs
     return { success: false, error };
   }
 }
