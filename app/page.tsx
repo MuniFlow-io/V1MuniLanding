@@ -23,7 +23,11 @@ export default function HomePage() {
             <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              We turn fragmented workflows into shared systems—without forcing teams to change how they work.
+              We turn email threads, spreadsheets, and institutional memory into a living record of the deal—designed to evolve as the transaction takes shape.
+            </p>
+
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-snug mt-8 mb-4">
+              Documentation, approvals, key dates, and deal terms—structured around how municipal bond deals actually run.
             </p>
 
             <div className="pt-6">
@@ -48,30 +52,36 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-3 gap-8">
               <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                  Deal Coordination
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed">
-                  How teams move work forward across multiple parties and timelines.
-                </p>
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
+                    Deal Coordination
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed">
+                    How issuers, counsel, advisors, and lenders move a deal forward—without duplicating work or losing the thread.
+                  </p>
+                </div>
               </Card>
 
               <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                  Information Flow
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed">
-                  Where critical details live and how they reach the right people.
-                </p>
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
+                    Information Flow
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed">
+                    Where deal terms, drafts, and approvals live—and how updates are tracked without surprise emails.
+                  </p>
+                </div>
               </Card>
 
               <Card variant="feature" size="large">
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                  Workflow Visibility
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed">
-                  Seeing what&apos;s happening, what&apos;s next, and what needs attention.
-                </p>
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
+                    Workflow Visibility
+                  </h3>
+                  <p className="text-gray-400 text-lg leading-relaxed">
+                    Clear visibility into what&apos;s been decided, what&apos;s pending, and what can&apos;t move forward yet.
+                  </p>
+                </div>
               </Card>
             </div>
           </div>
@@ -122,7 +132,7 @@ export default function HomePage() {
                   From real workflows
                 </h3>
                 <p className="text-gray-400 text-lg leading-relaxed">
-                  We start with how deals actually run—not abstract processes.
+                  We start with how deals actually run—not abstract processes—including legal review, approvals, and public-sector constraints.
                 </p>
               </div>
 
@@ -132,20 +142,47 @@ export default function HomePage() {
                   Through conversation
                 </h3>
                 <p className="text-gray-400 text-lg leading-relaxed">
-                  Shaped by ongoing discussions with practitioners.
+                  Shaped by ongoing discussions with practitioners—across issuer, counsel, and advisor roles.
                 </p>
               </div>
 
               <div className="space-y-4 group">
                 <div className="h-1 w-12 bg-purple-600 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
                 <h3 className="text-2xl font-semibold text-white group-hover:text-purple-600 transition-colors duration-200">
-                  Iterating intentionally
+                  Built carefully
                 </h3>
                 <p className="text-gray-400 text-lg leading-relaxed">
-                  Evolving based on what works in the field.
+                  Evolving based on what works in the field—without compromising professional judgment, accountability, or compliance.
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* What MuniFlow Is */}
+        <section className="py-20 px-6 bg-gray-950/50">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
+              MuniFlow is not a document generator or a generic project tracker.
+            </p>
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
+              It&apos;s a structured workspace for municipal bond transactions—built around how deals actually move.
+            </p>
+          </div>
+        </section>
+
+        {/* Built from Practice */}
+        <section className="py-20 px-6 bg-gray-950/30">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <h2 className="text-3xl md:text-4xl font-semibold text-white text-center">
+              Built from decades of public finance practice.
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+              MuniFlow is shaped by long-term experience working on municipal bond transactions across a wide range of issuers and financing structures.
+            </p>
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+              It reflects firsthand understanding of how deals actually move—and where better structure makes the difference.
+            </p>
           </div>
         </section>
 
@@ -159,7 +196,7 @@ export default function HomePage() {
             </h2>
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              If you&apos;re working in municipal bond deals and this resonates, we&apos;d like to hear from you.
+              If you work on municipal bond transactions and this resonates, we&apos;d like to hear from you.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
@@ -171,7 +208,7 @@ export default function HomePage() {
               
               <Link href="/contact?demo=true">
                 <Button variant="secondary" size="large">
-                  Request a Demo
+                  See How it Works
                 </Button>
               </Link>
             </div>
@@ -181,7 +218,7 @@ export default function HomePage() {
         {/* Simple Footer */}
         <footer className="py-12 px-6 border-t border-gray-900">
           <div className="max-w-6xl mx-auto text-center text-gray-500">
-            <p>© 2025 <span className="text-cyan-400 font-medium">MuniFlow</span>. Built for municipal bond deal teams.</p>
+            <p>© 2026 <span className="text-cyan-400 font-medium">MuniFlow</span>. Built for municipal bond financing teams.</p>
           </div>
         </footer>
       </main>

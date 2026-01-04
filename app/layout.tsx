@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Muniflow - Bond Deal Workflow Management",
-  description: "Streamlining bond deal workflows with modern technology",
+  title: "MuniFlow - Municipal Bond Deal System",
+  description: "A structured workspace for municipal bond transactions—built around how deals actually move.",
 };
 
 export default function RootLayout({
