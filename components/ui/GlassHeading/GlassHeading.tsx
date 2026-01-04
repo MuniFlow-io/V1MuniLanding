@@ -8,18 +8,36 @@ interface GlassHeadingProps {
 export const GlassHeading = ({ children, className }: GlassHeadingProps) => {
   return (
     <div className={cn(
-      "relative backdrop-blur-md bg-gradient-to-br from-white/10 via-white/5 to-transparent",
-      "border border-white/20 rounded-2xl p-8 mb-16",
-      "shadow-lg shadow-cyan-500/10",
-      "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
-      "before:bg-gradient-to-br before:from-cyan-400/20 before:via-transparent before:to-purple-600/20",
-      "before:-z-10",
+      "relative group mb-16",
       className
     )}>
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/5 via-transparent to-purple-600/5 blur-xl" />
-      <div className="relative text-center">
-        {children}
+      {/* Main glass container */}
+      <div className={cn(
+        // Core glass effect - very strong blur
+        "relative backdrop-blur-[20px] -webkit-backdrop-blur-[20px]",
+        "bg-gradient-to-br from-white/[0.15] via-white/[0.08] to-white/[0.05]",
+        // Shape and border
+        "rounded-2xl border border-white/40",
+        // 3D depth with shadows
+        "shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]",
+        // Inner shadow for depth
+        "[box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.3),0_8px_32px_0_rgba(0,0,0,0.37)]",
+        "p-8"
+      )}>
+        {/* Light reflection gradient (top-left to simulate light source) */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-60 pointer-events-none" />
+        
+        {/* Color accent reflection */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-400/10 via-purple-600/5 to-transparent pointer-events-none" />
+        
+        {/* Content */}
+        <div className="relative text-center z-10">
+          {children}
+        </div>
       </div>
+      
+      {/* Outer glow for extra depth */}
+      <div className="absolute inset-[-1px] rounded-2xl bg-gradient-to-br from-cyan-400/20 via-blue-500/10 to-purple-600/20 blur-lg -z-10 opacity-50" />
     </div>
   );
 };
