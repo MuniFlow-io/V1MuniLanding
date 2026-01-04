@@ -52,36 +52,30 @@ export default function HomePage() {
 
             <div className="grid md:grid-cols-3 gap-8">
               <Card variant="feature" size="large">
-                <div className="text-center">
-                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                    Deal Coordination
-                  </h3>
-                  <p className="text-gray-400 text-lg leading-relaxed">
-                    How issuers, counsel, advisors, and lenders move a deal forward—without duplicating work or losing the thread.
-                  </p>
-                </div>
+                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                  Deal Coordination
+                </h3>
+                <p className="text-gray-400 text-lg leading-relaxed text-center">
+                  How issuers, counsel, advisors, and lenders move a deal forward—without duplicating work or losing the thread.
+                </p>
               </Card>
 
               <Card variant="feature" size="large">
-                <div className="text-center">
-                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                    Information Flow
-                  </h3>
-                  <p className="text-gray-400 text-lg leading-relaxed">
-                    Where deal terms, drafts, and approvals live—and how updates are tracked without surprise emails.
-                  </p>
-                </div>
+                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                  Information Flow
+                </h3>
+                <p className="text-gray-400 text-lg leading-relaxed text-center">
+                  Where deal terms, drafts, and approvals live—and how updates are tracked without surprise emails.
+                </p>
               </Card>
 
               <Card variant="feature" size="large">
-                <div className="text-center">
-                  <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200">
-                    Workflow Visibility
-                  </h3>
-                  <p className="text-gray-400 text-lg leading-relaxed">
-                    Clear visibility into what&apos;s been decided, what&apos;s pending, and what can&apos;t move forward yet.
-                  </p>
-                </div>
+                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-cyan-400 transition-colors duration-200 text-center">
+                  Workflow Visibility
+                </h3>
+                <p className="text-gray-400 text-lg leading-relaxed text-center">
+                  Clear visibility into what&apos;s been decided, what&apos;s pending, and what can&apos;t move forward yet.
+                </p>
               </Card>
             </div>
           </div>
