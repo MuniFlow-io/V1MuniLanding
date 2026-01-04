@@ -2,6 +2,8 @@ import { Navigation } from "@/components/layout/Navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { GlassHeading } from "@/components/ui/GlassHeading";
+import { TrustBar } from "@/components/ui/TrustBar";
+import { SocialShare } from "@/components/ui/SocialShare";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -27,7 +29,7 @@ export default function HomePage() {
               We turn email threads, spreadsheets, and institutional memory into a living record of the deal—designed to evolve as the transaction takes shape.
             </p>
 
-            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-snug mt-8 mb-4">
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-snug mt-8 mb-6">
               Documentation, approvals, key dates, and deal terms—structured around how municipal bond deals actually run.
             </p>
 
@@ -41,10 +43,24 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Trust Bar - Credibility Indicators */}
+        <section className="py-12 px-6 bg-black/50">
+          <div className="max-w-6xl mx-auto">
+            <TrustBar
+              items={[
+                { highlight: "Decades", text: "of public finance practice" },
+                { highlight: "Supreme Court", text: "litigation experience" },
+                { highlight: "Top 10", text: "firm background" },
+                { highlight: "Real", text: "municipal bond expertise" },
+              ]}
+            />
+          </div>
+        </section>
+
         {/* What We Focus On */}
         <section className="py-24 px-6 bg-gray-950/50">
           <div className="max-w-6xl mx-auto">
-            <GlassHeading>
+            <GlassHeading variant="minimal">
               <h2 className="text-4xl md:text-5xl font-semibold text-white">
                 We&apos;re focused on:
               </h2>
@@ -118,7 +134,7 @@ export default function HomePage() {
         {/* How We're Building */}
         <section className="py-24 px-6 bg-gray-950/30">
           <div className="max-w-4xl mx-auto text-center space-y-16">
-            <GlassHeading>
+            <GlassHeading variant="minimal">
               <h2 className="text-4xl md:text-5xl font-semibold text-white">
                 How we&apos;re building this:
               </h2>
@@ -219,6 +235,16 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Social Proof Section */}
+        <section className="py-20 px-6 bg-gray-950/50">
+          <div className="max-w-4xl mx-auto">
+            <SocialShare 
+              hashtag="MuniFlow" 
+              twitterHandle="muniflow"
+            />
           </div>
         </section>
 

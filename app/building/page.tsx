@@ -32,7 +32,7 @@ export default function BuildingPage() {
 
         {/* Deal Setup */}
         <section className="py-24 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large" className="relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 blur-3xl pointer-events-none" />
               
@@ -68,7 +68,7 @@ export default function BuildingPage() {
 
         {/* Deal Overview */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large" className="relative overflow-hidden">
               <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 blur-3xl pointer-events-none" />
               
@@ -104,7 +104,7 @@ export default function BuildingPage() {
 
         {/* Versioned Term Sheet */}
         <section className="py-24 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large" className="relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/5 blur-3xl pointer-events-none" />
               
@@ -140,7 +140,7 @@ export default function BuildingPage() {
 
         {/* Supporting Capabilities */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="feature" size="large">
               <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
                 Supporting capabilities
@@ -155,7 +155,7 @@ export default function BuildingPage() {
 
         {/* Why We're Starting Here */}
         <section className="py-24 px-6 bg-gray-950/50">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large">
               <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
                 Why we&apos;re starting here

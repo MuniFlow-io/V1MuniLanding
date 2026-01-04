@@ -22,7 +22,7 @@ export default function CredibilityPage() {
 
         {/* Built from Practice */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large" className="relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 blur-3xl pointer-events-none" />
               
@@ -50,14 +50,14 @@ export default function CredibilityPage() {
         {/* Experience Informs Structure */}
         <section className="py-24 px-6 bg-gray-950/50">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-20">
+            <div className="text-center mb-20" data-aos="fade-up">
               <h2 className="text-4xl md:text-5xl font-semibold text-white mb-4">
                 Experience informs the structure.
               </h2>
               <div className="h-1 w-20 mx-auto bg-cyan-400/60 rounded-full" />
             </div>
 
-            <Card variant="feature" size="large">
+            <Card variant="feature" size="large" data-aos="fade-up" data-aos-delay="100">
               <div className="space-y-8">
                 <p className="text-xl text-gray-300 leading-relaxed">
                   Over time, the same challenges appear again and again:
@@ -81,7 +81,7 @@ export default function CredibilityPage() {
 
         {/* What MuniFlow Is */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="highlight" size="large">
               <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
                 What MuniFlow is (and is not).
@@ -102,7 +102,7 @@ export default function CredibilityPage() {
 
         {/* Built Thoughtfully */}
         <section className="py-24 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
             <Card variant="feature" size="large">
               <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
                 Built thoughtfully, in conversation.

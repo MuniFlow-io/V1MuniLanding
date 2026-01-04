@@ -15,11 +15,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          "bg-gradient-to-r from-purple-700 via-purple-600 to-blue-500",
+          "bg-gradient-to-r from-purple-700 via-purple-500 to-cyan-400",
           "text-white",
           "shadow-lg shadow-purple-700/40",
-          "hover:shadow-2xl hover:shadow-purple-600/60",
-          "focus:ring-purple-600",
+          "hover:shadow-2xl hover:shadow-cyan-400/60",
+          "focus:ring-cyan-400",
         ],
         secondary: [
           "bg-transparent border-2 border-cyan-400",

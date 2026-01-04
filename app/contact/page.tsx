@@ -23,14 +23,14 @@ export default function ContactPage() {
         </section>
 
         {/* Form Section */}
-        <section className="pb-32 px-6">
+        <section className="pb-32 px-6" data-aos="fade-up">
           <ContactForm />
         </section>
 
         {/* Simple Footer */}
         <footer className="py-12 px-6 border-t border-gray-900">
           <div className="max-w-6xl mx-auto text-center text-gray-500">
-            <p>© 2025 <span className="text-cyan-400 font-medium">MuniFlow</span>. Built for municipal bond deal teams.</p>
+            <p>© 2026 <span className="text-cyan-400 font-medium">MuniFlow</span>. Built for municipal bond financing teams.</p>
           </div>
         </footer>
       </main>

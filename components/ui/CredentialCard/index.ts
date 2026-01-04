@@ -1,0 +1,2 @@
+export { CredentialCard } from "./CredentialCard";
+
