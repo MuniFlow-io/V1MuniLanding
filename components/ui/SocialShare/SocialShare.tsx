@@ -5,22 +5,21 @@ import { useState } from "react";
 
 interface SocialShareProps {
   hashtag?: string;
-  twitterHandle?: string;
+  companyName?: string;
   className?: string;
   variant?: "inline" | "floating" | "compact";
 }
 
 export const SocialShare = ({
   hashtag = "MuniFlow",
-  twitterHandle = "muniflow",
+  companyName = "MuniFlow",
   className,
   variant = "inline",
 }: SocialShareProps) => {
   const [copied, setCopied] = useState(false);
 
-  const handleTwitterShare = () => {
-    const text = `Excited about @${twitterHandle} - transforming municipal bond workflows! #${hashtag}`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  const handleLinkedInShare = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
     window.open(url, "_blank", "width=550,height=420");
   };
 
@@ -34,11 +33,11 @@ export const SocialShare = ({
     return (
       <div className={cn("flex items-center gap-3", className)}>
         <button
-          onClick={handleTwitterShare}
-          className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-400/10 border border-cyan-400/30 hover:bg-cyan-400/20 hover:border-cyan-400/50 transition-all duration-200"
+          onClick={handleLinkedInShare}
+          className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-400/10 border border-blue-400/30 hover:bg-blue-400/20 hover:border-blue-400/50 transition-all duration-200"
         >
-          <TwitterIcon className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm text-cyan-400 font-medium">Share</span>
+          <LinkedInIcon className="w-4 h-4 text-blue-400" />
+          <span className="text-sm text-blue-400 font-medium">Share</span>
         </button>
         
         <button
@@ -66,11 +65,11 @@ export const SocialShare = ({
       >
         <div className="flex flex-col gap-3">
           <button
-            onClick={handleTwitterShare}
-            className="group flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400/50 transition-all duration-200 hover:scale-110"
-            aria-label="Share on Twitter"
+            onClick={handleLinkedInShare}
+            className="group flex items-center justify-center w-12 h-12 rounded-xl bg-blue-400/10 hover:bg-blue-400/20 border border-blue-400/30 hover:border-blue-400/50 transition-all duration-200 hover:scale-110"
+            aria-label="Share on LinkedIn"
           >
-            <TwitterIcon className="w-5 h-5 text-cyan-400" />
+            <LinkedInIcon className="w-5 h-5 text-blue-400" />
           </button>
           
           <button
@@ -94,7 +93,7 @@ export const SocialShare = ({
       className={cn(
         "backdrop-blur-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80",
         "border border-gray-800 rounded-2xl p-6",
-        "hover:border-cyan-400/30 transition-all duration-300",
+        "hover:border-blue-400/30 transition-all duration-300",
         className
       )}
       data-aos="fade-up"
@@ -111,11 +110,11 @@ export const SocialShare = ({
         
         <div className="flex items-center gap-3">
           <button
-            onClick={handleTwitterShare}
-            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400/20 to-cyan-500/20 border border-cyan-400/40 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-400/20 transition-all duration-200 hover:scale-105"
+            onClick={handleLinkedInShare}
+            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-400/20 to-blue-500/20 border border-blue-400/40 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-400/20 transition-all duration-200 hover:scale-105"
           >
-            <TwitterIcon className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span className="text-cyan-400 font-medium">Tweet</span>
+            <LinkedInIcon className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+            <span className="text-blue-400 font-medium">LinkedIn</span>
           </button>
           
           <button
@@ -141,9 +140,9 @@ export const SocialShare = ({
 };
 
 // Simple icon components
-const TwitterIcon = ({ className }: { className?: string }) => (
+const LinkedInIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
   </svg>
 );
 

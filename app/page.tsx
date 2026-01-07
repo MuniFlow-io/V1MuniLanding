@@ -49,7 +49,7 @@ export default function HomePage() {
             <TrustBar
               items={[
                 { highlight: "Decades", text: "of public finance practice" },
-                { highlight: "Supreme Court", text: "litigation experience" },
+                { highlight: "Issuer-side", text: "judgment" },
                 { highlight: "Top 10", text: "firm background" },
                 { highlight: "Real", text: "municipal bond expertise" },
               ]}
@@ -100,34 +100,6 @@ export default function HomePage() {
                 </Card>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Proof of Domain Understanding */}
-        <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto" data-aos="fade-up">
-            <Card variant="highlight" size="large" className="relative overflow-hidden">
-              {/* Subtle corner accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 blur-3xl pointer-events-none" />
-              
-              <div className="relative">
-                <div className="h-1 w-16 bg-cyan-400 mb-6 rounded-full" />
-                
-                <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-white leading-tight">
-                  Built by someone who&apos;s been in the deals.
-                </h2>
-                
-                <div className="space-y-6 text-lg md:text-xl text-gray-300 leading-relaxed">
-                  <p>
-                    Amira has worked on municipal bond deals, seeing firsthand where workflows break down and where small changes create real impact.
-                  </p>
-                  
-                  <p>
-                    MuniFlow is built from that experience—shaped by what actually happens in deal teams.
-                  </p>
-                </div>
-              </div>
-            </Card>
           </div>
         </section>
 
