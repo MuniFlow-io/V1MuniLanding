@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { sendLeadNotification, sendConfirmationEmail } from "@/lib/email";
 
 interface ContactFormData {
@@ -9,6 +9,16 @@ interface ContactFormData {
   role?: string;
   intent: string;
   message?: string;
+  timestamp: string;
+}
+
+interface DatabaseRecord {
+  name: string;
+  email: string;
+  company: string | null;
+  role: string | null;
+  intent: string;
+  message: string | null;
   timestamp: string;
 }
 
@@ -34,17 +44,19 @@ export async function POST(request: Request) {
     }
 
     // 1. Store in Supabase
-    const { error: dbError } = await supabaseAdmin
+    const dbRecord: DatabaseRecord = {
+      name: data.name,
+      email: data.email,
+      company: data.company || null,
+      role: data.role || null,
+      intent: data.intent,
+      message: data.message || null,
+      timestamp: data.timestamp,
+    };
+    
+    const { error: dbError } = await getSupabaseAdmin()
       .from('contact_submissions')
-      .insert({
-        name: data.name,
-        email: data.email,
-        company: data.company || null,
-        role: data.role || null,
-        intent: data.intent,
-        message: data.message || null,
-        timestamp: data.timestamp,
-      });
+      .insert(dbRecord as never);
 
     if (dbError) {
       // Log error but don't fail the request - still send emails
