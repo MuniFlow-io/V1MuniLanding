@@ -214,8 +214,7 @@ export default function HomePage() {
         <section className="py-20 px-6 bg-gray-950/50">
           <div className="max-w-4xl mx-auto">
             <SocialShare 
-              hashtag="MuniFlow" 
-              twitterHandle="muniflow"
+              hashtag="MuniFlow"
             />
           </div>
         </section>

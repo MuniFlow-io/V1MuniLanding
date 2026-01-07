@@ -1,6 +1,21 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to avoid errors during build time
+let resendInstance: Resend | null = null;
+
+const getResend = () => {
+  if (resendInstance) {
+    return resendInstance;
+  }
+  
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
+  }
+  
+  resendInstance = new Resend(apiKey);
+  return resendInstance;
+};
 
 interface ContactSubmission {
   name: string;
@@ -21,7 +36,7 @@ export async function sendLeadNotification(data: ContactSubmission) {
   };
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'MuniFlow Leads <leads@muniflow.io>', // Update with your verified domain
       to: process.env.NOTIFICATION_EMAIL || 'steve@muniflow.io', // Your email
       subject: `🎯 New MuniFlow Lead: ${data.name} wants to ${intentLabels[data.intent] || data.intent}`,
@@ -71,7 +86,7 @@ export async function sendConfirmationEmail(email: string, name: string, intent:
       'connect': 'Looking forward to connecting with you.',
     };
 
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'MuniFlow <hello@muniflow.io>', // Update with your verified domain
       to: email,
       subject: 'Thanks for reaching out to MuniFlow',

@@ -5,14 +5,12 @@ import { useState } from "react";
 
 interface SocialShareProps {
   hashtag?: string;
-  companyName?: string;
   className?: string;
   variant?: "inline" | "floating" | "compact";
 }
 
 export const SocialShare = ({
   hashtag = "MuniFlow",
-  companyName = "MuniFlow",
   className,
   variant = "inline",
 }: SocialShareProps) => {
