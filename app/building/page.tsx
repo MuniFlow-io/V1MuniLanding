@@ -2,6 +2,7 @@ import { Navigation } from "@/components/layout/Navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BuildingPage() {
   return (
@@ -30,19 +31,37 @@ export default function BuildingPage() {
           </div>
         </section>
 
-        {/* Deal Setup */}
+        {/* Deal Setup - Screenshot Left, Content Right */}
         <section className="py-24 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto" data-aos="fade-up">
-            <Card variant="highlight" size="large" className="relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/5 blur-3xl pointer-events-none" />
-              
-              <div className="relative space-y-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center" data-aos="fade-up">
+              {/* Screenshot */}
+              <div className="order-2 lg:order-1">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
+                  <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-cyan-400/40 shadow-2xl shadow-cyan-500/20 group-hover:shadow-cyan-500/30 transition-all duration-300 group-hover:scale-[1.02]">
+                    <div className="relative aspect-[4/3] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                      <Image
+                        src="/images/features/deal-setup.png"
+                        alt="MuniFlow Deal Setup interface showing structured form for creating new municipal bond deals"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1024px) 100vw, 45vw"
+                        priority
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="order-1 lg:order-2 space-y-8">
                 <div className="flex items-center gap-4">
                   <div className="h-1 w-12 bg-cyan-400 rounded-full" />
                   <span className="text-sm font-medium text-cyan-400 uppercase tracking-wider">01</span>
                 </div>
                 
-                <h2 className="text-3xl md:text-4xl font-semibold text-white leading-tight">
+                <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight">
                   Deal Setup
                 </h2>
                 
@@ -55,30 +74,23 @@ export default function BuildingPage() {
                     This step establishes a clean, shared foundation so the deal team starts aligned from day one.
                   </p>
                 </div>
-
-                <div className="pt-4">
-                  <p className="text-sm text-gray-500 italic">
-                    Screenshot: Structured deal setup designed for real municipal finance workflows.
-                  </p>
-                </div>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
-        {/* Deal Overview */}
+        {/* Deal Overview - Content Left, Screenshot Right */}
         <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto" data-aos="fade-up">
-            <Card variant="highlight" size="large" className="relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 blur-3xl pointer-events-none" />
-              
-              <div className="relative space-y-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center" data-aos="fade-up">
+              {/* Content */}
+              <div className="space-y-8">
                 <div className="flex items-center gap-4">
                   <div className="h-1 w-12 bg-blue-500 rounded-full" />
                   <span className="text-sm font-medium text-blue-500 uppercase tracking-wider">02</span>
                 </div>
                 
-                <h2 className="text-3xl md:text-4xl font-semibold text-white leading-tight">
+                <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight">
                   Deal Overview
                 </h2>
                 
@@ -91,30 +103,57 @@ export default function BuildingPage() {
                     This page replaces scattered notes, emails, and spreadsheets with a shared snapshot that stays current as the deal develops.
                   </p>
                 </div>
+              </div>
 
-                <div className="pt-4">
-                  <p className="text-sm text-gray-500 italic">
-                    Screenshot: A shared reference point for the entire deal team.
-                  </p>
+              {/* Screenshot */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
+                <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-blue-500/40 shadow-2xl shadow-blue-500/20 group-hover:shadow-blue-500/30 transition-all duration-300 group-hover:scale-[1.02]">
+                  <div className="relative aspect-[16/9] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                    <Image
+                      src="/images/features/deal-overview.png"
+                      alt="MuniFlow Deal Overview showing core deal details and information snapshot"
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 1024px) 100vw, 45vw"
+                    />
+                  </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
-        {/* Versioned Term Sheet */}
+        {/* Versioned Term Sheet - Screenshot Left, Content Right */}
         <section className="py-24 px-6 bg-gray-950/30">
-          <div className="max-w-4xl mx-auto" data-aos="fade-up">
-            <Card variant="highlight" size="large" className="relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/5 blur-3xl pointer-events-none" />
-              
-              <div className="relative space-y-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center" data-aos="fade-up">
+              {/* Screenshot */}
+              <div className="order-2 lg:order-1">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
+                  <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-purple-600/40 shadow-2xl shadow-purple-500/20 group-hover:shadow-purple-500/30 transition-all duration-300 group-hover:scale-[1.02]">
+                    <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl overflow-hidden shadow-inner border border-gray-700 flex items-center justify-center">
+                      {/* Placeholder for screenshot */}
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 mx-auto bg-purple-600/10 rounded-xl flex items-center justify-center">
+                          <span className="text-3xl text-purple-600">03</span>
+                        </div>
+                        <p className="text-sm text-gray-500 italic">Screenshot: Versioned Term Sheet</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="order-1 lg:order-2 space-y-8">
                 <div className="flex items-center gap-4">
                   <div className="h-1 w-12 bg-purple-600 rounded-full" />
                   <span className="text-sm font-medium text-purple-600 uppercase tracking-wider">03</span>
                 </div>
                 
-                <h2 className="text-3xl md:text-4xl font-semibold text-white leading-tight">
+                <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight">
                   Versioned Term Sheet
                 </h2>
                 
@@ -127,14 +166,8 @@ export default function BuildingPage() {
                     Changes are tracked, drafts can be published deliberately, and prior versions remain accessible so everyone understands what changed and when.
                   </p>
                 </div>
-
-                <div className="pt-4">
-                  <p className="text-sm text-gray-500 italic">
-                    Screenshot: A structured term sheet built for collaboration and control.
-                  </p>
-                </div>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
