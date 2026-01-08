@@ -133,14 +133,14 @@ export default function BuildingPage() {
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
                   <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-purple-600/40 shadow-2xl shadow-purple-500/20 group-hover:shadow-purple-500/30 transition-all duration-300 group-hover:scale-[1.02]">
-                    <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl overflow-hidden shadow-inner border border-gray-700 flex items-center justify-center">
-                      {/* Placeholder for screenshot */}
-                      <div className="text-center space-y-4">
-                        <div className="w-16 h-16 mx-auto bg-purple-600/10 rounded-xl flex items-center justify-center">
-                          <span className="text-3xl text-purple-600">03</span>
-                        </div>
-                        <p className="text-sm text-gray-500 italic">Screenshot: Versioned Term Sheet</p>
-                      </div>
+                    <div className="relative aspect-[16/10] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                      <Image
+                        src="/images/features/term-sheet.png"
+                        alt="MuniFlow Versioned Term Sheet showing draft and revision tracking capabilities"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1024px) 100vw, 45vw"
+                      />
                     </div>
                   </div>
                 </div>
