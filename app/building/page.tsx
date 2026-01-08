@@ -108,17 +108,17 @@ export default function BuildingPage() {
               {/* Screenshot */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
-                <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-blue-500/40 shadow-2xl shadow-blue-500/20 group-hover:shadow-blue-500/30 transition-all duration-300 group-hover:scale-[1.02]">
-                  <div className="relative aspect-[16/9] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
-                    <Image
-                      src="/images/features/deal-overview.png"
-                      alt="MuniFlow Deal Overview showing core deal details and information snapshot"
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 1024px) 100vw, 45vw"
-                    />
+                  <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-blue-500/40 shadow-2xl shadow-blue-500/20 group-hover:shadow-blue-500/30 transition-all duration-300 group-hover:scale-[1.02]">
+                    <div className="relative aspect-[9/4] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                      <Image
+                        src="/images/features/deal-overview.png"
+                        alt="MuniFlow Deal Overview showing core deal details and information snapshot"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1024px) 100vw, 45vw"
+                      />
+                    </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function BuildingPage() {
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-3xl blur-3xl opacity-40 group-hover:opacity-60 transition-all duration-300" />
                   <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-3 border border-purple-600/40 shadow-2xl shadow-purple-500/20 group-hover:shadow-purple-500/30 transition-all duration-300 group-hover:scale-[1.02]">
-                    <div className="relative aspect-[16/10] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                    <div className="relative aspect-[4/3] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-200">
                       <Image
                         src="/images/features/term-sheet.png"
                         alt="MuniFlow Versioned Term Sheet showing draft and revision tracking capabilities"
