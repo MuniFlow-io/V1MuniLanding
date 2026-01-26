@@ -33,10 +33,15 @@ export default function HomePage() {
               Documentation, approvals, key dates, and deal terms—structured around how municipal bond deals actually run.
             </p>
 
-            <div className="pt-6">
+            <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/contact">
                 <Button variant="primary" size="large">
                   Get in Touch
+                </Button>
+              </Link>
+              <Link href="/bond-generator">
+                <Button variant="secondary" size="large">
+                  Try Bond Generator
                 </Button>
               </Link>
             </div>
@@ -54,6 +59,41 @@ export default function HomePage() {
                 { highlight: "Real", text: "municipal bond expertise" },
               ]}
             />
+          </div>
+        </section>
+
+        {/* Tools Available Now */}
+        <section className="py-20 px-6 bg-gray-950/30">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
+                Tools available now
+              </h2>
+              <div className="h-px w-16 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full" />
+            </div>
+            
+            <div data-aos="fade-up">
+              <Card variant="highlight" size="large">
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-semibold text-white">
+                    Bond Generator
+                  </h3>
+                  <p className="text-lg text-gray-300 leading-relaxed">
+                    A standalone tool for deterministic assembly of executed bond certificates from finalized inputs. Upload your bond form template, maturity schedule, and CUSIPs—the tool validates and mechanically assembles certificates with same inputs producing the same output every time.
+                  </p>
+                  <p className="text-base text-gray-400">
+                    Built for paralegals, deal admins, and counsel support staff involved in closing logistics after bond terms are final. No drafting, no recommendations—just deterministic assembly.
+                  </p>
+                  <div className="pt-4">
+                    <Link href="/bond-generator">
+                      <Button variant="secondary" size="medium">
+                        Open Bond Generator
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </section>
 
@@ -156,6 +196,9 @@ export default function HomePage() {
                 </p>
                 <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
                   It&apos;s a structured workspace for municipal bond transactions—built around how deals actually move.
+                </p>
+                <p className="text-lg text-gray-400 leading-relaxed border-t border-gray-800 pt-6 mt-6">
+                  We do provide standalone tools—such as the Bond Generator—for deterministic assembly of finalized certificates.
                 </p>
               </div>
             </Card>

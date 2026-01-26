@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/credibility", label: "About" },
   { href: "/building", label: "What We're Building" },
+  { href: "/bond-generator", label: "Bond Generator" },
   { href: "/contact", label: "Reach Out" },
 ];
 
