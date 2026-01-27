@@ -22,6 +22,7 @@ export default function BondGeneratorWorkbenchPage() {
     templateFile,
     maturityFile,
     cusipFile,
+    tagMap,
     bonds,
     uploadTemplate,
     completeTagging,
@@ -100,7 +101,21 @@ export default function BondGeneratorWorkbenchPage() {
                     onUpload={uploadTemplate}
                     isLoading={isLoading}
                     error={error}
+                    existingFile={templateFile}
                   />
+                  
+                  {/* Continue button when file already uploaded */}
+                  {templateFile && !isLoading && (
+                    <div className="flex justify-end mt-6">
+                      <Button 
+                        variant="primary" 
+                        size="large"
+                        onClick={() => goToStep('tagging')}
+                      >
+                        Continue to Tagging →
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -112,6 +127,7 @@ export default function BondGeneratorWorkbenchPage() {
                     onComplete={completeTagging}
                     onCancel={cancelTagging}
                     isLoading={isLoading}
+                    restoredTagMap={tagMap}
                   />
                 </div>
               )}

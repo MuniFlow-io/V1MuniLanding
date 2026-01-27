@@ -105,22 +105,18 @@ export function AssemblyGeneration({
   };
 
   const handleGenerateClick = () => {
-    // Show account gate for download
-    // TODO: After auth implementation, check if user is authenticated
-    // if (!user) {
-    //   logger.info('Generate clicked without auth, showing gate');
-    //   setAccountGateReason('download');
-    //   setShowAccountGate(true);
-    //   return;
-    // }
+    // Check if user is authenticated
+    if (!user) {
+      // Guest user - show account gate
+      logger.info('Generate clicked without auth, showing gate');
+      setAccountGateReason('download');
+      setShowAccountGate(true);
+      return;
+    }
     
-    // For now, always show account gate
-    logger.info('Generate clicked, showing account gate');
-    setAccountGateReason('download');
-    setShowAccountGate(true);
-    
-    // After auth is implemented, this will call:
-    // onGenerate();
+    // User is authenticated - proceed with generation
+    logger.info('Generate clicked with auth, proceeding', { userId: user.id });
+    onGenerate();
   };
 
   if (!bonds || bonds.length === 0) {

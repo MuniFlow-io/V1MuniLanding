@@ -33,6 +33,7 @@ CREATE TABLE bond_drafts (
   maturity_file JSONB,
   cusip_file JSONB,
   tag_map JSONB,
+  assembled_bonds JSONB, -- ✅ NEW: Assembled bond data (preserves bonds after assembly)
   is_finalized BOOLEAN DEFAULT false,
   legal_accepted BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

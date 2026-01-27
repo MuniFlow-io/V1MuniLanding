@@ -32,6 +32,7 @@ export interface SaveDraftData {
     lastModified: number;
   } | null;
   tag_map?: TagMap | null;
+  assembled_bonds?: any[] | null; // ✅ NEW: Save assembled bonds
   is_finalized?: boolean;
   legal_accepted?: boolean;
   draft_id?: string; // Optional: ID of draft being updated (for resume)

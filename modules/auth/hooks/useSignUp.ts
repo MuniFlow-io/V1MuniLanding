@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '../api/authApi';
 import { resetPreviewCount } from '@/lib/previewLimiter';
+import { resetGenerationCount } from '@/lib/generationLimiter';
 import { logger } from '@/lib/logger';
 
 interface UseSignUpResult {
@@ -76,8 +77,9 @@ export function useSignUp(redirectPath?: string): UseSignUpResult {
       
       logger.info('Sign up successful', { email });
       
-      // Reset preview count for new user
+      // Reset counters for new user (unlimited access)
       resetPreviewCount();
+      resetGenerationCount();
       
       setSuccess(true);
       

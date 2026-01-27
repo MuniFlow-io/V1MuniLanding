@@ -23,18 +23,38 @@ interface TemplateTaggingProps {
   onComplete: (taggedFile: File, tagMap?: TagMap) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  restoredTagMap?: TagMap | null; // ✅ NEW: Restored from draft
 }
 
 export function TemplateTagging({ 
   templateFile, 
   onComplete, 
   onCancel,
-  isLoading = false 
+  isLoading = false,
+  restoredTagMap = null // ✅ NEW: Accept restored tags
 }: TemplateTaggingProps) {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [taggedPositions, setTaggedPositions] = useState<TagPosition[]>([]);
   const [assignedTags, setAssignedTags] = useState<Map<BondTag, boolean>>(new Map());
+  
+  // ✅ NEW: Restore tags from draft on mount
+  useEffect(() => {
+    if (restoredTagMap?.tags) {
+      const positions: TagPosition[] = restoredTagMap.tags.map((t, idx) => ({
+        id: `restored-${idx}`,
+        tag: t.tag,
+        text: '', // We don't save text, just tag type
+        position: t.position,
+      }));
+      setTaggedPositions(positions);
+      
+      // Mark tags as assigned
+      const tags = new Map<BondTag, boolean>();
+      restoredTagMap.tags.forEach(t => tags.set(t.tag, true));
+      setAssignedTags(tags);
+    }
+  }, [restoredTagMap]);
 
   // Fetch preview HTML when template file changes
   useEffect(() => {

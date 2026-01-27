@@ -56,6 +56,7 @@ export interface BondDraft {
     filename: string;
     size: number;
   } | null;
+  assembled_bonds?: any[] | null; // ✅ NEW: Assembled bond data
   is_finalized: boolean;
   legal_accepted: boolean;
   created_at: string;
@@ -93,6 +94,7 @@ export interface SaveDraftInput {
     filename: string;
     size: number;
   } | null;
+  assembled_bonds?: any[] | null; // ✅ NEW: Assembled bond data
   is_finalized?: boolean;
   legal_accepted?: boolean;
   draft_id?: string; // Optional: ID of draft being updated (for resume)
@@ -155,6 +157,7 @@ export async function saveDraft(
       maturity_file: draftData.maturity_file ?? null,
       cusip_file: draftData.cusip_file ?? null,
       tag_map: draftData.tag_map ?? null,
+      assembled_bonds: draftData.assembled_bonds ?? null, // ✅ NEW: Save assembled bonds
       is_finalized: draftData.is_finalized ?? false,
       legal_accepted: draftData.legal_accepted ?? false,
     };

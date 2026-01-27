@@ -155,6 +155,11 @@ export function useBondGenerator(): UseBondGeneratorResult {
             setTagMap(draft.tag_map);
           }
 
+          // ✅ NEW: Restore assembled bonds if they exist
+          if (draft.assembled_bonds) {
+            setBonds(draft.assembled_bonds);
+          }
+
           // ✅ NOW set step and other state AFTER files are loaded
           const draftStep = draft.current_step as BondGeneratorStep;
           const safeStep =
@@ -217,6 +222,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
             {
               current_step: step,
               tag_map: tagMap,
+              assembled_bonds: bonds, // ✅ NEW: Save assembled bonds
               is_finalized: isFinalized,
               legal_accepted: legalAccepted,
               draft_id: currentDraftId.current || undefined,
@@ -304,11 +310,12 @@ export function useBondGenerator(): UseBondGeneratorResult {
 
   /**
    * Cancel tagging - return to template upload
+   * ✅ FIXED: Don't clear templateFile - user might want to review/replace
    */
   const cancelTagging = () => {
     setStep('upload-template');
-    setTemplateFile(null);
-    setTagMap(null);
+    // Don't clear templateFile - it's still uploaded
+    // Don't clear tagMap - it's already saved to draft
   };
 
   /**
