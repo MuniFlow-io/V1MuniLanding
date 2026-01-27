@@ -120,6 +120,7 @@ function mergeCusips(
       principal_amount: maturity.principal_amount,
       coupon_rate: maturity.coupon_rate,
       cusip_no: cusip.cusip!,
+      dated_date: maturitySchedule.dated_date, // Include dated_date from schedule level
     });
   }
 

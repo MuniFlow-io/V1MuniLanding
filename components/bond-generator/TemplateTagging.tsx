@@ -16,11 +16,11 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { DocumentTaggingViewer, type TagPosition } from "./DocumentTaggingViewer";
 import { TagProgressPanel } from "./TagProgressPanel";
-import { REQUIRED_TAGS, type BondTag } from "@/modules/bond-generator/types/tagConstants";
+import { REQUIRED_TAGS, type BondTag, type TagMap } from "@/modules/bond-generator/types";
 
 interface TemplateTaggingProps {
   templateFile: File | null;
-  onComplete: (taggedFile: File) => void;
+  onComplete: (taggedFile: File, tagMap?: TagMap) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -103,9 +103,20 @@ export function TemplateTagging({
     }
 
     if (templateFile) {
-      // For now, just pass the file through
-      // In future, could call API to apply tags to DOCX
-      onComplete(templateFile);
+      // Build TagMap from tagged positions
+      const tagMap: TagMap = {
+        templateId: templateFile.name,
+        templateHash: '', // Optional - could calculate hash if needed
+        tags: taggedPositions.map(t => ({
+          tag: t.tag,
+          position: t.position,
+        })),
+        filename: templateFile.name,
+        size: templateFile.size,
+      };
+      
+      // Pass BOTH file AND tagMap to hook
+      onComplete(templateFile, tagMap);
     }
   };
 

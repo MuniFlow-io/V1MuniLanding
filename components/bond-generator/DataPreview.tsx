@@ -44,7 +44,7 @@ export function DataPreview({
       try {
         // Parse maturity schedule
         const maturityFormData = new FormData();
-        maturityFormData.append('file', maturityFile);
+        maturityFormData.append('maturityFile', maturityFile);
 
         const maturityResponse = await fetch('/api/bond-generator/parse-maturity', {
           method: 'POST',
@@ -53,7 +53,7 @@ export function DataPreview({
 
         // Parse CUSIP schedule
         const cusipFormData = new FormData();
-        cusipFormData.append('file', cusipFile);
+        cusipFormData.append('cusipFile', cusipFile);
 
         const cusipResponse = await fetch('/api/bond-generator/parse-cusip', {
           method: 'POST',
@@ -62,26 +62,26 @@ export function DataPreview({
 
         if (maturityResponse.ok) {
           const maturityResult = await maturityResponse.json();
-          const rows: TableRow[] = maturityResult.data.map((row: any, index: number) => ({
+          const rows: TableRow[] = (maturityResult.rows || []).map((row: any, index: number) => ({
             id: `mat-${index}`,
-            maturity_date: row.maturityDate || '',
-            principal_amount: row.principalAmount || '',
-            coupon_rate: row.couponRate || '',
-            dated_date: row.datedDate || '',
+            maturity_date: row.maturity_date || '',
+            principal_amount: row.principal_amount || '',
+            coupon_rate: row.coupon_rate || '',
+            dated_date: row.dated_date || '',
             series: row.series || '',
-            _status: 'valid' as const,
+            _status: row.status || 'valid' as const,
           }));
           setMaturityData(rows);
         }
 
         if (cusipResponse.ok) {
           const cusipResult = await cusipResponse.json();
-          const rows: TableRow[] = cusipResult.data.map((row: any, index: number) => ({
+          const rows: TableRow[] = (cusipResult.rows || []).map((row: any, index: number) => ({
             id: `cusip-${index}`,
             cusip: row.cusip || '',
-            maturity_date: row.maturityDate || '',
+            maturity_date: row.maturity_date || '',
             series: row.series || '',
-            _status: 'valid' as const,
+            _status: row.status || 'valid' as const,
           }));
           setCusipData(rows);
         }

@@ -20,12 +20,17 @@ export function FileUpload({
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    // Check file type
-    if (!file.name.toLowerCase().endsWith('.docx')) {
-      return 'Only .docx files are supported';
+    // Check file type against accept prop
+    const validExtensions = accept.split(',').map(ext => ext.trim().toLowerCase());
+    const fileName = file.name.toLowerCase();
+    const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
+    
+    if (!isValidType) {
+      return `Invalid file type. Accepted: ${accept}`;
     }
     
     // Check file size
@@ -38,13 +43,17 @@ export function FileUpload({
   };
 
   const handleFile = (file: File) => {
-    const validationError = validateFile(file);
+    const error = validateFile(file);
     
-    if (validationError) {
-      // Could show error toast here
+    if (error) {
+      // Show validation error to user
+      setValidationError(error);
+      setSelectedFile(null);
       return;
     }
     
+    // Clear any previous errors
+    setValidationError(null);
     setSelectedFile(file);
     onUpload(file);
   };
@@ -146,7 +155,7 @@ export function FileUpload({
       </div>
 
       {/* Error Display */}
-      {error && (
+      {(error || validationError) && (
         <div className="bg-red-900/20 border border-red-700/40 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,7 +163,7 @@ export function FileUpload({
             </svg>
             <div className="flex-1">
               <p className="text-sm font-medium text-red-400">Upload failed</p>
-              <p className="text-xs text-red-300 mt-1">{error}</p>
+              <p className="text-xs text-red-300 mt-1">{error || validationError}</p>
             </div>
           </div>
         </div>

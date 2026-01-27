@@ -150,6 +150,7 @@ export default function BondGeneratorWorkbenchPage() {
                 <div className="mt-8">
                   <AssemblyGeneration
                     bonds={bonds}
+                    templateFile={templateFile}
                     onGenerate={generateBonds}
                     onBack={() => goToStep('preview-data')}
                     isGenerating={step === 'generating' || isLoading}

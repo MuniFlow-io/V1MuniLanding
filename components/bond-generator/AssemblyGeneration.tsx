@@ -1,7 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { AccountGateModal } from "./AccountGateModal";
+import { PreviewLimitBanner } from "./PreviewLimitBanner";
+import { 
+  getPreviewsRemaining, 
+  hasPreviewsRemaining, 
+  incrementPreviewCount 
+} from "@/lib/previewLimiter";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { logger } from "@/lib/logger";
 import type { AssembledBond } from "@/modules/bond-generator/types";
 
 interface AssemblyGenerationProps {
@@ -9,14 +19,110 @@ interface AssemblyGenerationProps {
   onGenerate: () => void;
   onBack: () => void;
   isGenerating?: boolean;
+  templateFile?: File | null;
 }
 
 export function AssemblyGeneration({ 
   bonds,
   onGenerate,
   onBack,
-  isGenerating = false 
+  isGenerating = false,
+  templateFile = null
 }: AssemblyGenerationProps) {
+  const { user } = useAuth();
+  // Preview modal state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  
+  // Account gate state
+  const [showAccountGate, setShowAccountGate] = useState(false);
+  const [accountGateReason, setAccountGateReason] = useState<'preview_limit' | 'download'>('download');
+  
+  // Preview limit state
+  const [previewsRemaining, setPreviewsRemaining] = useState(3);
+
+  // Load preview count from localStorage on mount
+  useEffect(() => {
+    setPreviewsRemaining(getPreviewsRemaining());
+  }, []);
+
+  const handlePreviewFirst = async () => {
+    if (!bonds || bonds.length === 0 || !templateFile) return;
+    
+    // Check preview limit (skip for authenticated users)
+    if (!user && !hasPreviewsRemaining()) {
+      logger.info('Preview limit reached for guest user, showing account gate');
+      setAccountGateReason('preview_limit');
+      setShowAccountGate(true);
+      return;
+    }
+    
+    setIsLoadingPreview(true);
+    setShowPreviewModal(true);
+    
+    try {
+      logger.info('Generating bond preview', { 
+        bondIndex: 0,
+        authenticated: !!user 
+      });
+      
+      const formData = new FormData();
+      formData.append('template', templateFile);
+      formData.append('bondData', JSON.stringify(bonds[0]));
+      
+      const response = await fetch('/api/bond-generator/preview-filled-bond-public', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPreviewHtml(data.html);
+        
+        // Only increment counter for guest users
+        if (!user) {
+          incrementPreviewCount();
+          setPreviewsRemaining(getPreviewsRemaining());
+        }
+        
+        logger.info('Bond preview generated successfully', { 
+          authenticated: !!user,
+          previewsRemaining: user ? 'unlimited' : getPreviewsRemaining() 
+        });
+      } else {
+        logger.warn('Preview API returned error', { status: response.status });
+        setPreviewHtml(null);
+      }
+    } catch (error) {
+      logger.error('Preview failed', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      setPreviewHtml(null);
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
+  const handleGenerateClick = () => {
+    // Show account gate for download
+    // TODO: After auth implementation, check if user is authenticated
+    // if (!user) {
+    //   logger.info('Generate clicked without auth, showing gate');
+    //   setAccountGateReason('download');
+    //   setShowAccountGate(true);
+    //   return;
+    // }
+    
+    // For now, always show account gate
+    logger.info('Generate clicked, showing account gate');
+    setAccountGateReason('download');
+    setShowAccountGate(true);
+    
+    // After auth is implemented, this will call:
+    // onGenerate();
+  };
+
   if (!bonds || bonds.length === 0) {
     return (
       <div className="text-center py-12">
@@ -30,6 +136,12 @@ export function AssemblyGeneration({
 
   return (
     <div className="space-y-6">
+      {/* Preview Limit Banner */}
+      <PreviewLimitBanner 
+        previewsRemaining={previewsRemaining}
+        show={!isGenerating}
+      />
+
       {/* Info Banner */}
       <div className="bg-purple-900/20 border border-purple-700/40 rounded-lg p-4">
         <div className="flex items-start gap-3">
@@ -99,7 +211,7 @@ export function AssemblyGeneration({
                         {bond.maturity_date ? new Date(bond.maturity_date).toLocaleDateString() : 'No date'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {bond.cusip_number || 'No CUSIP'} • {bond.coupon_rate || '0'}% • 
+                        {bond.cusip_no || 'No CUSIP'} • {bond.coupon_rate || '0'}% • 
                         {bond.principal_amount ? ` $${bond.principal_amount.toLocaleString()}` : ' $0'}
                       </p>
                     </div>
@@ -145,25 +257,108 @@ export function AssemblyGeneration({
           ← Back
         </Button>
         
-        <Button 
-          variant="primary" 
-          size="large"
-          onClick={onGenerate}
-          disabled={isGenerating}
-        >
-          {isGenerating ? (
-            <>
-              <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Generating...
-            </>
-          ) : (
-            `Generate ${bonds.length} Bond${bonds.length !== 1 ? 's' : ''} →`
+        <div className="flex items-center gap-3">
+          {templateFile && (
+            <Button 
+              variant="glass" 
+              size="medium"
+              onClick={handlePreviewFirst}
+              disabled={isGenerating || isLoadingPreview}
+            >
+              {isLoadingPreview ? 'Loading...' : '👁️ Preview Sample'}
+            </Button>
           )}
-        </Button>
+          
+          <Button 
+            variant="primary" 
+            size="large"
+            onClick={handleGenerateClick}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Generating...
+              </>
+            ) : (
+              `Generate ${bonds.length} Bond${bonds.length !== 1 ? 's' : ''} →`
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-gray-900 border border-cyan-700/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-cyan-900/20 to-purple-900/20 border-b border-cyan-700/30 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white">Bond Preview</h3>
+                <p className="text-sm text-gray-400">Sample of first bond certificate</p>
+              </div>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {isLoadingPreview && (
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-gray-400">Generating preview...</p>
+                </div>
+              )}
+              
+              {!isLoadingPreview && previewHtml && (
+                <div className="bg-white rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={previewHtml}
+                    className="w-full h-[600px] border-0"
+                    title="Bond Preview"
+                  />
+                </div>
+              )}
+
+              {!isLoadingPreview && !previewHtml && (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">Preview not available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-800 px-6 py-4">
+              <Button 
+                variant="glass"
+                size="medium"
+                onClick={() => setShowPreviewModal(false)}
+                className="w-full"
+              >
+                Close Preview
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Account Gate Modal */}
+      <AccountGateModal
+        isOpen={showAccountGate}
+        reason={accountGateReason}
+        bondCount={bonds?.length || 0}
+        previewsUsed={3 - previewsRemaining}
+        onClose={() => setShowAccountGate(false)}
+      />
     </div>
   );
 }
