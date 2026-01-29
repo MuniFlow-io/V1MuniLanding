@@ -1,5 +1,28 @@
 # Tool-First Go-to-Market Strategy - Execution Plan
 
+## Progress Summary
+
+**Completed:** Stage 1 ✅ | Stage 2 ✅  
+**Next:** Stage 3 (Feedback & Tracking)  
+**Timeline:** Stages 1-2 completed in 1 session (Jan 29, 2026)
+
+### What's Live Now:
+- ✅ `/tools` page with app launcher pattern
+- ✅ Tool-first homepage messaging
+- ✅ Simplified Bond Generator flow (3 clicks → 1 click)
+- ✅ Platform Vision page (roadmap clarity)
+- ✅ Updated contact form (demo-focused)
+- ✅ Clean navigation structure
+- ✅ Vercel Analytics & Speed Insights enabled
+
+### What's Next (Stage 3):
+- ⏳ Usage tracking in Supabase
+- ⏳ Generation limits (soft gates)
+- ⏳ Feedback collection widgets
+- ⏳ Email capture & waitlist flows
+
+---
+
 ## Strategic Context
 
 **Primary Goal**: Build trust & adoption in municipal bond industry → enterprise sale or VC raise  
@@ -11,7 +34,7 @@
 
 ## Three-Stage Rollout
 
-### **STAGE 1: Infrastructure & Surface Area** ⏳ This Week
+### **STAGE 1: Infrastructure & Surface Area** ✅ COMPLETE
 *Build the structure for a multi-tool ecosystem*
 
 #### What We're Building:
@@ -34,15 +57,15 @@
    - Scales gracefully as we add tools
 
 #### Deliverables:
-- [ ] `/app/tools/page.tsx` - Tools launcher page
-- [ ] `/components/tools/ToolCard.tsx` - Reusable tool card
-- [ ] `/lib/config/tools.ts` - Tool configuration (easy to update)
-- [ ] Update `Navigation.tsx` - Add Tools dropdown
-- [ ] Basic styling consistent with existing design system
+- [x] `/app/tools/page.tsx` - Tools launcher page
+- [x] `/components/tools/ToolCard.tsx` - Reusable tool card
+- [x] `/app/tools/tools-config.ts` - Tool configuration (fixed architecture)
+- [x] Update `Navigation.tsx` - Added Tools + Platform Vision links
+- [x] Basic styling consistent with existing design system
 
 ---
 
-### **STAGE 2: Language & Positioning** ⏳ This Week
+### **STAGE 2: Language & Positioning** ✅ COMPLETE
 *Update copy to reflect tool-first reality*
 
 #### Homepage Updates (`/app/page.tsx`):
@@ -84,15 +107,17 @@
 - "Platform Vision" or "Roadmap" (not "What We're Building")
 
 #### Deliverables:
-- [ ] Update `/app/page.tsx` - Hero, tools section, CTAs
-- [ ] Update `/app/building/page.tsx` - Rename, add shipped section, reframe
-- [ ] Update `/app/bond-generator/page.tsx` - Add ecosystem messaging
-- [ ] Review all copy for consistency (tool-first, credibility-focused)
+- [x] Update `/app/page.tsx` - Hero updated, removed 4 bloated sections
+- [x] Update `/app/building/page.tsx` - Renamed to `/platform-vision`, reframed
+- [x] Update `/app/bond-generator/page.tsx` - Completely rebuilt, simplified flow
+- [x] Review all copy for consistency (tool-first, credibility-focused)
+- [x] **BONUS:** Simplified Bond Generator from 3-click to 1-click flow
+- [x] **BONUS:** Updated contact form with relevant options
 
 ---
 
-### **STAGE 3: Feedback & Tracking** ⏳ Next 1-2 Weeks
-*Add analytics and user engagement loops*
+### **STAGE 3: Feedback & Tracking** ⏳ NEXT (Priority)
+*Add analytics and user engagement loops - NOT YET IMPLEMENTED*
 
 #### Usage Analytics:
 1. **Database Schema** (Supabase)
@@ -317,6 +342,59 @@ export const tools = [
 
 ---
 
+## Stage 3 Implementation Checklist (TODO)
+
+### Priority 1: Usage Tracking
+- [ ] Create Supabase table: `tool_usage` (user_id, tool_id, action_type, timestamp)
+- [ ] Create Supabase table: `user_generations` (user_id, tool_id, count, last_used)
+- [ ] Build analytics utility: `trackToolUsage(userId, toolId, action)`
+- [ ] Add tracking to Bond Generator key actions:
+  - [ ] Tool opened
+  - [ ] Template uploaded
+  - [ ] Generation completed
+  - [ ] Download clicked
+
+### Priority 2: Generation Limits (Soft Gate)
+- [ ] Create hook: `useGenerationLimit(toolId)`
+- [ ] Query user's generation count from `user_generations` table
+- [ ] Show soft gate modal after 3 generations:
+  - Message: "You've used your free generations. Want unlimited access?"
+  - CTA: "Join Waitlist" (not payment yet)
+- [ ] Track which users hit the limit (high-intent users)
+
+### Priority 3: Feedback Collection
+- [ ] Create Supabase table: `tool_feedback` (user_id, tool_id, rating, comment, timestamp)
+- [ ] Add post-generation feedback widget:
+  - Simple: 👍 👎 buttons
+  - Optional: "What would make this better?" text input
+- [ ] Show feedback after successful generation (unobtrusive)
+
+### Priority 4: Email Capture & Waitlist
+- [ ] Create Supabase table: `waitlist` (email, tool_id, source, timestamp)
+- [ ] Add waitlist form on `/tools` page for coming-soon tools
+- [ ] Add waitlist CTA in soft gate modal
+- [ ] (Optional) Email integration for notifications
+
+### Priority 5: Analytics Dashboard (Internal)
+- [ ] Simple admin page: `/admin/analytics`
+- [ ] Show metrics:
+  - Total generations per tool
+  - Active users (last 7/30 days)
+  - Conversion funnel (visits → starts → completions)
+  - Users who hit limit (waitlist candidates)
+
+---
+
+## What NOT to Build Yet
+
+- ❌ Payment processing (defer until multi-tool launch)
+- ❌ Complex analytics dashboards (use Vercel Analytics first)
+- ❌ Email automation (manual outreach is fine for now)
+- ❌ A/B testing (not enough traffic yet)
+
+---
+
 *This is a living document. Update as we learn and iterate.*
 
-**Last Updated**: Jan 29, 2026
+**Last Updated**: Jan 29, 2026  
+**Status**: Stages 1-2 complete, Stage 3 ready to implement
