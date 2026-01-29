@@ -380,10 +380,47 @@ export async function convertDocxToHtml(
               text: span.textContent,
             }, '*');
           } catch (e) {
-            logger.error('Bond Generator: Failed to apply tag in iframe', {
-              tagId: event.data.tagId,
-              error: e instanceof Error ? e.message : 'Unknown error',
-            });
+            console.error('Failed to apply tag:', e);
+          }
+        }
+      } else if (event.data.type === 'RESTORE_TAG') {
+        // Restore a previously tagged text from saved state
+        const textToFind = event.data.text;
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+        
+        let foundNode = null;
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (node.textContent && node.textContent.includes(textToFind)) {
+            foundNode = node;
+            break;
+          }
+        }
+        
+        if (foundNode && foundNode.parentNode) {
+          const parent = foundNode.parentNode;
+          const text = foundNode.textContent || '';
+          const startIndex = text.indexOf(textToFind);
+          
+          if (startIndex !== -1) {
+            const range = document.createRange();
+            range.setStart(foundNode, startIndex);
+            range.setEnd(foundNode, startIndex + textToFind.length);
+            
+            const span = document.createElement('span');
+            span.className = 'tagged-text';
+            span.setAttribute('data-tag', event.data.tag);
+            span.setAttribute('data-tag-id', event.data.tagId);
+            
+            try {
+              range.surroundContents(span);
+            } catch (e) {
+              console.warn('Could not restore tag for:', textToFind.substring(0, 30));
+            }
           }
         }
       } else if (event.data.type === 'REMOVE_TAG') {

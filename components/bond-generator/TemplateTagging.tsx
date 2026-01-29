@@ -39,27 +39,48 @@ export function TemplateTagging({
   const [assignedTags, setAssignedTags] = useState<Map<BondTag, boolean>>(new Map());
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
-  // ✅ NEW: Restore tags from draft on mount
+  // Function to restore visual tags in iframe after HTML loads
+  const restoreVisualTags = () => {
+    if (!iframeRef.current?.contentWindow || !restoredTagMap?.taggedHtml) return;
+    
+    // Parse the saved HTML to extract tagged spans
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(restoredTagMap.taggedHtml, 'text/html');
+    const taggedSpans = doc.querySelectorAll('.tagged-text');
+    
+    // Send each tag to the iframe to recreate visual tags
+    taggedSpans.forEach((span) => {
+      const tagId = span.getAttribute('data-tag-id');
+      const tag = span.getAttribute('data-tag');
+      const text = span.textContent;
+      
+      if (tagId && tag && text) {
+        // Tell iframe to find and tag this text
+        iframeRef.current?.contentWindow?.postMessage({
+          type: 'RESTORE_TAG',
+          tagId,
+          tag,
+          text,
+        }, '*');
+      }
+    });
+  };
+  
+  // ✅ Restore tag positions from draft on mount
   useEffect(() => {
     if (restoredTagMap?.tags) {
       const positions: TagPosition[] = restoredTagMap.tags.map((t, idx) => ({
         id: `restored-${idx}`,
-        tag: t.tag as BondTag, // Assert type from restored data
-        text: '', // We don't save text, just tag type
+        tag: t.tag as BondTag,
+        text: '',
         position: t.position,
       }));
       setTaggedPositions(positions);
       
-      // Mark tags as assigned
+      // Mark tags as assigned in progress tracker
       const tags = new Map<BondTag, boolean>();
       restoredTagMap.tags.forEach(t => tags.set(t.tag as BondTag, true));
       setAssignedTags(tags);
-      
-      // ✅ NEW: Restore tagged HTML if available (keeps visual tags)
-      if (restoredTagMap.taggedHtml) {
-        setPreviewHtml(restoredTagMap.taggedHtml);
-        setIsLoadingPreview(false); // Don't fetch fresh HTML
-      }
     }
   }, [restoredTagMap]);
 
@@ -71,7 +92,7 @@ export function TemplateTagging({
       setIsLoadingPreview(true);
       try {
         const formData = new FormData();
-        formData.append('template', templateFile as File); // templateFile is guaranteed non-null by guard above
+        formData.append('template', templateFile as File);
 
         const response = await fetch('/api/bond-generator/template/preview', {
           method: 'POST',
@@ -85,6 +106,14 @@ export function TemplateTagging({
 
         const data = await response.json();
         setPreviewHtml(data.html);
+        
+        // ✅ After HTML loads, restore visual tags in iframe
+        if (restoredTagMap?.tags && restoredTagMap.tags.length > 0) {
+          // Wait for iframe to fully load
+          setTimeout(() => {
+            restoreVisualTags();
+          }, 500);
+        }
       } catch {
         // Preview error - could show error message to user
       } finally {
