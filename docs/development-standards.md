@@ -1,4 +1,11 @@
-# Development Standards - Muniflow Landing Page
+# Development Standards
+
+**NOTE:** This document is now consolidated into more specific guides. For comprehensive standards, see:
+- **`ELITE-STANDARDS.md`** - Code quality standards
+- **`FRONTEND-ARCHITECTURE.md`** - Frontend development
+- **`BACKEND-ARCHITECTURE.md`** - Backend development
+
+---
 
 ## Core Philosophy
 **Move fast. Build clean. No compromises.**

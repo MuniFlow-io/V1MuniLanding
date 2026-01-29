@@ -1,0 +1,102 @@
+/**
+ * Blank Space Detector Service
+ * Finds blank spaces (______) in DOCX bond forms
+ *
+ * SIMPLIFIED: Just find blanks, suggest tags if possible, return list
+ */
+
+import { failure, ServiceResult, success } from '@/lib/errors/ApiError';
+import { logger } from '@/lib/logger';
+import AdmZip from 'adm-zip';
+import { TAG_HINTS } from './tagConstants';
+
+export interface DetectedBlank {
+  id: string;
+  position: number;
+  blankText: string;
+  beforeContext: string;
+  suggestedTag: string | null;
+}
+
+export interface BlankDetectionResult {
+  blanks: DetectedBlank[];
+  totalBlanks: number;
+  autoMatchedCount: number;
+}
+
+
+/**
+ * Detect all blank spaces (______) in DOCX
+ */
+export async function detectBlankSpaces(
+  docxBuffer: Buffer
+): Promise<ServiceResult<BlankDetectionResult>> {
+  logger.info('Detecting blank spaces');
+
+  try {
+    // Extract text from DOCX
+    const zip = new AdmZip(docxBuffer);
+    const xml = zip.readAsText('word/document.xml');
+
+    if (!xml) {
+      return failure('INVALID_DOCX', 'Missing document.xml');
+    }
+
+    // Extract all text nodes
+    const textRegex = /<w:t[^>]*>([^<]*)<\/w:t>/g;
+    const textParts: string[] = [];
+    let match;
+
+    while ((match = textRegex.exec(xml)) !== null) {
+      textParts.push(match[1] || '');
+    }
+
+    const fullText = textParts.join('');
+
+    // Find all blanks (3+ underscores)
+    const blankRegex = /_{3,}/g;
+    const blanks: DetectedBlank[] = [];
+    let autoMatchedCount = 0;
+
+    while ((match = blankRegex.exec(fullText)) !== null) {
+      const position = match.index;
+      const blankText = match[0];
+
+      // Get 50 chars before blank for context
+      const beforeStart = Math.max(0, position - 50);
+      const beforeContext = fullText.substring(beforeStart, position).toLowerCase().trim();
+
+      // Suggest tag based on context
+      let suggestedTag: string | null = null;
+      for (const [hint, tag] of Object.entries(TAG_HINTS)) {
+        if (beforeContext.includes(hint)) {
+          suggestedTag = tag;
+          autoMatchedCount++;
+          break;
+        }
+      }
+
+      blanks.push({
+        id: `blank-${blanks.length}`,
+        position,
+        blankText,
+        beforeContext: beforeContext.slice(-40), // Last 40 chars
+        suggestedTag,
+      });
+    }
+
+    logger.info('Blanks detected', {
+      totalBlanks: blanks.length,
+      autoMatched: autoMatchedCount,
+    });
+
+    return success({
+      blanks,
+      totalBlanks: blanks.length,
+      autoMatchedCount,
+    });
+  } catch (error) {
+    logger.error('Blank detection failed', { error });
+    return failure('DETECTION_ERROR', 'Failed to detect blanks');
+  }
+}

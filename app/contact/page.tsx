@@ -17,7 +17,7 @@ export default function ContactPage() {
             <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Whether you want to try the app, share feedback, or just connect—we&apos;d like to hear from you.
+              Schedule a demo, give feedback on Bond Generator, or discuss your workflow challenges—we&apos;d like to hear from you.
             </p>
           </div>
         </section>

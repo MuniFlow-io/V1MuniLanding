@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AOSProvider } from "@/components/layout/AOSProvider";
+import { AuthProvider } from "@/app/providers/AuthProvider";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "MuniFlow - Municipal Bond Deal System",
@@ -15,7 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AOSProvider>{children}</AOSProvider>
+        <AuthProvider>
+          <AOSProvider>{children}</AOSProvider>
+        </AuthProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
