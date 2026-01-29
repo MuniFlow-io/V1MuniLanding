@@ -17,7 +17,7 @@
  * - isLoading: Preview loading state
  */
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { TAG_OPTIONS, type BondTag } from "@/modules/bond-generator/types/tagConstants";
 
@@ -36,15 +36,19 @@ interface DocumentTaggingViewerProps {
   isLoading?: boolean;
 }
 
-export function DocumentTaggingViewer({
-  previewHtml,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  taggedPositions: _taggedPositions, // Kept for interface compliance, not currently used in display
-  onTagAssigned,
-  onTagRemoved,
-  isLoading = false,
-}: DocumentTaggingViewerProps) {
+export const DocumentTaggingViewer = forwardRef<HTMLIFrameElement, DocumentTaggingViewerProps>(
+  function DocumentTaggingViewer({
+    previewHtml,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    taggedPositions: _taggedPositions, // Kept for interface compliance, not currently used in display
+    onTagAssigned,
+    onTagRemoved,
+    isLoading = false,
+  }, forwardedRef) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  
+  // Expose the iframe ref to parent
+  useImperativeHandle(forwardedRef, () => iframeRef.current as HTMLIFrameElement);
   const [showTagMenu, setShowTagMenu] = useState(false);
   const [selectedText, setSelectedText] = useState<string>("");
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -210,4 +214,4 @@ export function DocumentTaggingViewer({
       )}
     </div>
   );
-}
+});

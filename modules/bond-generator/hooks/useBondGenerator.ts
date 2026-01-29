@@ -27,6 +27,10 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { logger } from '@/lib/logger';
 import { assembleBondsApi, generateBondsApi } from '../api/bondGeneratorApi';
 import { getLatestDraftApi, saveDraftWithFilesApi, restoreDraftFilesApi } from '../api/draftApi';
+import { 
+  saveFileToIndexedDB, 
+  loadFileFromIndexedDB 
+} from '@/lib/services/fileStorage';
 import type { AssembledBond, BondGeneratorStep, TagMap } from '../types';
 import type { BondInfo } from '../components/BondInfoFormSection';
 
@@ -121,25 +125,6 @@ export function useBondGenerator(): UseBondGeneratorResult {
       try {
         let draft = null;
 
-        // Check for sessionStorage first (user just authenticated)
-        const sessionTemplate = sessionStorage.getItem('bond-generator-template-file');
-        if (sessionTemplate) {
-          try {
-            const fileData = JSON.parse(sessionTemplate);
-            // Restore file from base64
-            const response = await fetch(fileData.data);
-            const blob = await response.blob();
-            const restoredFile = new File([blob], fileData.name, { type: fileData.type });
-            setTemplateFile(restoredFile);
-            logger.info('Restored template file from sessionStorage after auth');
-            
-            // Clear sessionStorage
-            sessionStorage.removeItem('bond-generator-template-file');
-          } catch {
-            // Ignore restore error
-          }
-        }
-
         // AUTHENTICATED: Load from database
         if (user) {
           draft = await getLatestDraftApi();
@@ -162,7 +147,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
             currentDraftId.current = draft.id;
           }
 
-          // ✅ AUTHENTICATED: Restore files from database
+          // ✅ AUTHENTICATED: Restore files from database (Supabase Storage)
           if (user && draft.id) {
             try {
               const restoredFiles = await restoreDraftFilesApi(draft.id);
@@ -177,11 +162,27 @@ export function useBondGenerator(): UseBondGeneratorResult {
                 setCusipFile(restoredFiles.cusip);
               }
             } catch {
-              // Continue anyway - user can re-upload files
+              // Fallback to IndexedDB if database load fails
+              logger.warn('Database file restore failed, trying IndexedDB');
             }
           }
-          // ✅ UNAUTHENTICATED: Files not persisted (too large for localStorage)
-          // User will need to re-upload files if they refresh
+          
+          // ✅ Try IndexedDB for ALL users (authenticated + unauthenticated)
+          // This provides file persistence across refreshes
+          try {
+            const [template, maturity, cusip] = await Promise.all([
+              loadFileFromIndexedDB('bond-gen-template'),
+              loadFileFromIndexedDB('bond-gen-maturity'),
+              loadFileFromIndexedDB('bond-gen-cusip'),
+            ]);
+
+            if (template && !templateFile) setTemplateFile(template);
+            if (maturity && !maturityFile) setMaturityFile(maturity);
+            if (cusip && !cusipFile) setCusipFile(cusip);
+          } catch {
+            // IndexedDB not available or failed - user will need to re-upload
+            logger.info('IndexedDB file restore skipped');
+          }
 
           // Tag map IS restored (most valuable data - manual work)
           if (draft.tag_map) {
@@ -226,6 +227,32 @@ export function useBondGenerator(): UseBondGeneratorResult {
 
     loadDraft();
   }, []); // Run once on mount
+
+  /**
+   * Auto-save files to IndexedDB when they change
+   * This provides file persistence for ALL users
+   */
+  useEffect(() => {
+    if (!hasLoadedDraft.current) return;
+
+    const saveFilesToIndexedDB = async () => {
+      try {
+        if (templateFile) {
+          await saveFileToIndexedDB('bond-gen-template', templateFile);
+        }
+        if (maturityFile) {
+          await saveFileToIndexedDB('bond-gen-maturity', maturityFile);
+        }
+        if (cusipFile) {
+          await saveFileToIndexedDB('bond-gen-cusip', cusipFile);
+        }
+      } catch {
+        // Silent fail - IndexedDB might not be available
+      }
+    };
+
+    saveFilesToIndexedDB();
+  }, [templateFile, maturityFile, cusipFile]);
 
   /**
    * Auto-save draft on state change (debounced)
@@ -275,7 +302,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
 
             setHasSavedDraft(true);
           } 
-          // UNAUTHENTICATED: Save to localStorage
+          // UNAUTHENTICATED: Save to localStorage (metadata only, files in IndexedDB)
           else {
             // Save metadata
             const draftData = {
@@ -287,15 +314,6 @@ export function useBondGenerator(): UseBondGeneratorResult {
             };
 
             localStorage.setItem('bond-generator-draft', JSON.stringify(draftData));
-            
-            // Save file metadata (so we can detect if user needs to re-upload)
-            const fileMetadata = {
-              template: templateFile ? { name: templateFile.name, size: templateFile.size, type: templateFile.type } : null,
-              maturity: maturityFile ? { name: maturityFile.name, size: maturityFile.size, type: maturityFile.type } : null,
-              cusip: cusipFile ? { name: cusipFile.name, size: cusipFile.size, type: cusipFile.type } : null,
-            };
-            
-            localStorage.setItem('bond-generator-files-meta', JSON.stringify(fileMetadata));
             
             setHasSavedDraft(true);
           }
@@ -313,7 +331,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [step, templateFile, maturityFile, cusipFile, tagMap, isFinalized, legalAccepted, user]);
+  }, [step, templateFile, maturityFile, cusipFile, tagMap, bonds, isFinalized, legalAccepted, user]);
 
   /**
    * Migrate localStorage draft to database when user signs in

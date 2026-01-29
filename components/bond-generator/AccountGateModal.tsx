@@ -3,8 +3,8 @@
 /**
  * Account Gate Modal Component
  * 
- * Displays signup modal when user hits preview limit or tries to download.
- * Shows value props and CTAs for account creation.
+ * Shows inline auth (no navigation) when user hits preview limit or tries to download.
+ * Uses AuthModal component for signup/signin without leaving the page.
  * 
  * ARCHITECTURE: Component (Layer 1) - DUMB
  * - Pure presentation modal
@@ -18,8 +18,8 @@
  * - Named export only
  */
 
-import { Button } from "@/components/ui/Button";
-import Link from "next/link";
+import { useState } from "react";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface AccountGateModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ interface AccountGateModalProps {
   bondCount: number;
   previewsUsed?: number;
   onClose: () => void;
-  onBeforeAuth?: () => void; // Optional callback before auth redirect
+  onAuthSuccess: () => void;
 }
 
 export function AccountGateModal({ 
@@ -36,16 +36,27 @@ export function AccountGateModal({
   bondCount,
   previewsUsed = 3,
   onClose,
-  onBeforeAuth
+  onAuthSuccess
 }: AccountGateModalProps) {
-  
-  const handleAuthClick = () => {
-    // Call prep callback before redirecting to auth
-    if (onBeforeAuth) {
-      onBeforeAuth();
-    }
-  };
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
+
   if (!isOpen) return null;
+
+  // If auth modal is open, show that instead
+  if (showAuth) {
+    return (
+      <AuthModal
+        isOpen={showAuth}
+        defaultMode={authMode}
+        onClose={() => setShowAuth(false)}
+        onSuccess={() => {
+          setShowAuth(false);
+          onAuthSuccess();
+        }}
+      />
+    );
+  }
 
   const headline = reason === 'preview_limit' 
     ? "You've used all 3 free previews" 
@@ -111,25 +122,29 @@ export function AccountGateModal({
 
           {/* CTA Buttons */}
           <div className="space-y-3 pt-2">
-            <Link 
-              href="/signup?redirect=/bond-generator/workbench" 
-              className="block"
-              onClick={handleAuthClick}
+            <button 
+              onClick={() => {
+                setAuthMode('signup');
+                setShowAuth(true);
+              }}
+              className="w-full"
             >
-              <Button variant="primary" size="large" className="w-full">
+              <div className="w-full px-6 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 rounded-lg text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
                 Create Free Account →
-              </Button>
-            </Link>
+              </div>
+            </button>
             
-            <Link 
-              href="/signin?redirect=/bond-generator/workbench" 
-              className="block"
-              onClick={handleAuthClick}
+            <button 
+              onClick={() => {
+                setAuthMode('signin');
+                setShowAuth(true);
+              }}
+              className="w-full"
             >
-              <Button variant="glass" size="medium" className="w-full">
+              <div className="w-full px-6 py-3 bg-gray-800/50 backdrop-blur-sm border border-cyan-700/40 hover:border-cyan-500/60 rounded-lg text-white font-medium transition-all duration-200">
                 Sign In
-              </Button>
-            </Link>
+              </div>
+            </button>
             
             <p className="text-xs text-gray-500 text-center pt-2">
               Already have an account? Use Sign In above

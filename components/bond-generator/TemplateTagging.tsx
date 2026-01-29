@@ -12,7 +12,7 @@
  * Clean, <150 lines, single responsibility
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { DocumentTaggingViewer, type TagPosition } from "./DocumentTaggingViewer";
 import { TagProgressPanel } from "./TagProgressPanel";
@@ -37,6 +37,7 @@ export function TemplateTagging({
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [taggedPositions, setTaggedPositions] = useState<TagPosition[]>([]);
   const [assignedTags, setAssignedTags] = useState<Map<BondTag, boolean>>(new Map());
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // ✅ NEW: Restore tags from draft on mount
   useEffect(() => {
@@ -53,6 +54,12 @@ export function TemplateTagging({
       const tags = new Map<BondTag, boolean>();
       restoredTagMap.tags.forEach(t => tags.set(t.tag as BondTag, true));
       setAssignedTags(tags);
+      
+      // ✅ NEW: Restore tagged HTML if available (keeps visual tags)
+      if (restoredTagMap.taggedHtml) {
+        setPreviewHtml(restoredTagMap.taggedHtml);
+        setIsLoadingPreview(false); // Don't fetch fresh HTML
+      }
     }
   }, [restoredTagMap]);
 
@@ -122,8 +129,11 @@ export function TemplateTagging({
       return;
     }
 
-    if (templateFile) {
-      // Build TagMap from tagged positions
+    if (templateFile && iframeRef.current?.contentDocument) {
+      // ✅ Get current HTML from iframe (includes all visual tags)
+      const currentTaggedHtml = iframeRef.current.contentDocument.documentElement.outerHTML;
+      
+      // Build TagMap from tagged positions  
       const tagMap: TagMap = {
         templateId: templateFile.name,
         templateHash: '', // Optional - could calculate hash if needed
@@ -133,6 +143,7 @@ export function TemplateTagging({
         })),
         filename: templateFile.name,
         size: templateFile.size,
+        taggedHtml: currentTaggedHtml, // ✅ Save tagged HTML for persistence
       };
       
       // Pass BOTH file AND tagMap to hook
@@ -146,6 +157,7 @@ export function TemplateTagging({
         {/* Main Document Viewer (2/3 width) */}
         <div className="lg:col-span-2">
           <DocumentTaggingViewer
+            ref={iframeRef}
             previewHtml={previewHtml}
             taggedPositions={taggedPositions}
             onTagAssigned={handleTagAssigned}

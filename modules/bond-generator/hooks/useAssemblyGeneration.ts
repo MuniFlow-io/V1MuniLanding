@@ -48,7 +48,6 @@ interface UseAssemblyGenerationResult {
   handleGenerateClick: () => void;
   closePreviewModal: () => void;
   closeAccountGate: () => void;
-  prepareForAuth: () => void; // NEW: Save state before auth redirect
 }
 
 export function useAssemblyGeneration({
@@ -172,44 +171,6 @@ export function useAssemblyGeneration({
   const closeAccountGate = () => {
     setShowAccountGate(false);
   };
-  
-  /**
-   * Prepare for auth redirect - save current state INCLUDING FILES
-   * This ensures user returns to exact same place after signup/signin
-   */
-  const prepareForAuth = async () => {
-    try {
-      // Save pending generation flag
-      if (bonds && bonds.length > 0) {
-        sessionStorage.setItem('bond-generator-pending-generation', JSON.stringify({
-          bondCount: bonds.length,
-          timestamp: Date.now(),
-        }));
-      }
-      
-      // Save template file as base64 in sessionStorage (for restore after auth)
-      if (templateFile) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          sessionStorage.setItem('bond-generator-template-file', JSON.stringify({
-            name: templateFile.name,
-            type: templateFile.type,
-            size: templateFile.size,
-            data: base64,
-          }));
-        };
-        reader.readAsDataURL(templateFile);
-      }
-      
-      logger.info('Prepared state for auth redirect (files saved to sessionStorage)', { 
-        bondCount: bonds?.length,
-        hasTemplate: !!templateFile
-      });
-    } catch (error) {
-      logger.error('Failed to prepare state for auth', { error });
-    }
-  };
 
   return {
     // Preview state
@@ -227,6 +188,5 @@ export function useAssemblyGeneration({
     handleGenerateClick,
     closePreviewModal,
     closeAccountGate,
-    prepareForAuth,
   };
 }

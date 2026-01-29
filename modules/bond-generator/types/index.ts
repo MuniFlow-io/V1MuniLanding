@@ -34,6 +34,7 @@ export interface TagMap {
   tags: TagPosition[];
   filename: string;
   size: number;
+  taggedHtml?: string; // ✅ NEW: Persisted HTML with visual tags
 }
 
 export interface BondGeneratorState {
