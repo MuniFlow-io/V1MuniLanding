@@ -68,7 +68,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     // Fill template with bond data
     const fillResult = await fillDocxTemplate(templateBuffer, bondData);
 
-    if (!fillResult.success || !fillResult.data) {
+    if (fillResult.error || !fillResult.data) {
       logger.error('Template fill failed', { error: fillResult.error });
       return res.status(500).json({ 
         error: fillResult.error?.message || 'Failed to fill template' 
@@ -78,7 +78,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     // Convert filled DOCX to HTML for preview
     const htmlResult = await convertDocxToHtml(fillResult.data);
 
-    if (!htmlResult.success || !htmlResult.data) {
+    if (htmlResult.error || !htmlResult.data) {
       logger.error('HTML conversion failed', { error: htmlResult.error });
       return res.status(500).json({ 
         error: htmlResult.error?.message || 'Failed to convert to HTML' 

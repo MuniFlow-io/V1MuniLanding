@@ -18,9 +18,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { TAG_OPTIONS, getTagDisplayName, type BondTag } from "@/modules/bond-generator/types/tagConstants";
+import { TAG_OPTIONS, type BondTag } from "@/modules/bond-generator/types/tagConstants";
 
 export interface TagPosition {
   id: string;
@@ -31,7 +30,7 @@ export interface TagPosition {
 
 interface DocumentTaggingViewerProps {
   previewHtml: string | null;
-  taggedPositions: TagPosition[];
+  taggedPositions: TagPosition[]; // Note: currently not used for display, but kept for future enhancements
   onTagAssigned: (tagId: string, tag: BondTag, text: string) => void;
   onTagRemoved: (tagId: string) => void;
   isLoading?: boolean;
@@ -39,7 +38,8 @@ interface DocumentTaggingViewerProps {
 
 export function DocumentTaggingViewer({
   previewHtml,
-  taggedPositions,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  taggedPositions: _taggedPositions, // Kept for interface compliance, not currently used in display
   onTagAssigned,
   onTagRemoved,
   isLoading = false,
@@ -169,7 +169,7 @@ export function DocumentTaggingViewer({
           <div className="space-y-1">
             <div className="px-3 py-2 border-b border-gray-700">
               <p className="text-xs font-medium text-gray-400">ASSIGN TAG</p>
-              <p className="text-sm text-white mt-1 truncate max-w-[200px]">"{selectedText}"</p>
+              <p className="text-sm text-white mt-1 truncate max-w-[200px]">&quot;{selectedText}&quot;</p>
             </div>
             
             <div className="max-h-[300px] overflow-y-auto">

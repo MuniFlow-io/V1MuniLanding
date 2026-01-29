@@ -7,10 +7,15 @@
  * - Uploads files to Supabase Storage
  * - Saves metadata to database
  *
- * AUTH: App-level (withApiAuth) - User must be logged in
+ * AUTH STRATEGY:
+ * - Anonymous users: Return 401 with helpful message
+ * - Logged-in users: Save draft with files
+ * 
+ * This supports freemium: Anonymous users can explore,
+ * but must sign up to save progress.
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import {
@@ -18,18 +23,31 @@ import {
   type SaveDraftInput,
 } from '@/lib/services/bond-generator/draftManager';
 import formidable from 'formidable';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export const config = {
   api: { bodyParser: false },
 };
 
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const userId = req.user.id;
+  // Check for session
+  const supabase = createSupabaseServerClient(req, res);
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const userId = session?.user?.id;
+
+  // Require auth for saving files
+  if (!userId) {
+    logger.warn('POST /api/bond-generator/draft-with-files - unauthorized');
+    return res.status(401).json({ 
+      error: 'Please sign in to save your progress',
+      code: 'UNAUTHORIZED'
+    });
+  }
 
   try {
     logger.info('Save draft with files request', { userId });
@@ -143,4 +161,5 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// No withApiAuth - we handle auth manually to provide better error messages
+export default withRequestId(handler);

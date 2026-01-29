@@ -3,19 +3,14 @@
  * 
  * ARCHITECTURE: Backend API (Layer 4)
  * - Signs out current user
- * - Calls Supabase auth service
+ * - Uses server-side Supabase client for cookie clearing
  * - Clears auth cookie
- * - NO AUTH REQUIRED (clearing session)
- * 
- * ELITE STANDARDS:
- * - Proper logging
- * - Error handling
- * - <100 lines
+ * - NO AUTH REQUIRED (destroying session)
  */
 
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -24,9 +19,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    logger.info('Sign out request');
+    // Create server client that clears cookies from response
+    const supabase = createSupabaseServerClient(req, res);
 
-    // Call Supabase auth service
+    // Sign out (cookies cleared automatically via server client)
     const { error } = await supabase.auth.signOut();
 
     if (error) {
@@ -38,7 +34,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json({ success: true });
   } catch (error) {
-    logger.error('Sign out failed', {
+    logger.error('Sign out error', {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 

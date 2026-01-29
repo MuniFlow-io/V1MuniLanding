@@ -83,6 +83,7 @@ export interface BondDraft {
     storage_path?: string;
   } | null;
   tag_map: TagMap | null;
+  assembled_bonds?: AssembledBond[]; // Store assembled bond data for recovery
   is_finalized: boolean;
   legal_accepted: boolean;
   created_at: string;

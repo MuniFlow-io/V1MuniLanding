@@ -44,6 +44,7 @@ export async function getTemplatePreviewApi(templateFile: File): Promise<{
   const response = await fetch('/api/bond-generator/template/preview', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 
@@ -70,6 +71,7 @@ export async function uploadTemplateApi(templateFile: File): Promise<TagMap> {
   const response = await fetch('/api/bond-generator/upload-template', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 
@@ -96,6 +98,7 @@ export async function parseMaturityApi(maturityFile: File): Promise<MaturitySche
   const response = await fetch('/api/bond-generator/parse-maturity', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 
@@ -124,6 +127,7 @@ export async function parseCusipApi(cusipFile: File): Promise<CusipSchedulePrevi
   const response = await fetch('/api/bond-generator/parse-cusip', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 
@@ -164,6 +168,7 @@ export async function assembleBondsApi(
   const response = await fetch('/api/bond-generator/assemble', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 
@@ -222,6 +227,7 @@ export async function generateBondsApi(
   const response = await fetch('/api/bond-generator/generate', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 

@@ -20,7 +20,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authApi } from '../api/authApi';
+import { supabase } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 
 interface UseSignInResult {
@@ -53,14 +53,25 @@ export function useSignIn(redirectPath?: string): UseSignInResult {
     setIsLoading(true);
     
     try {
-      logger.info('Calling sign in API', { email });
+      logger.info('Signing in', { email });
       
-      // Call Frontend API (which calls Backend API → Service)
-      await authApi.signIn(email, password);
+      // Sign in directly with Supabase (sets cookie properly)
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      logger.info('Sign in successful', { email });
+      if (signInError) {
+        throw new Error(signInError.message);
+      }
       
-      // Redirect immediately
+      if (!data.session) {
+        throw new Error('No session created');
+      }
+      
+      logger.info('Sign in successful', { email, userId: data.user.id });
+      
+      // Redirect - AuthProvider will sync automatically
       router.push(redirectPath || '/bond-generator/workbench');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign in failed';

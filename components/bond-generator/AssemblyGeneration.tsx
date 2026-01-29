@@ -1,17 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+/**
+ * Assembly Generation Component
+ * 
+ * ARCHITECTURE: Component (Layer 1) - DUMB
+ * - Just renders UI
+ * - NO business logic
+ * - NO auth checking
+ * - NO API calls
+ * - ALL logic is in useAssemblyGeneration hook
+ * 
+ * ELITE STANDARDS:
+ * - Component has no imports of logger, auth, or services
+ * - Component calls hook and renders based on hook state
+ * - <300 lines (just UI)
+ */
+
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { AccountGateModal } from "./AccountGateModal";
 import { PreviewLimitBanner } from "./PreviewLimitBanner";
-import { 
-  getPreviewsRemaining, 
-  hasPreviewsRemaining, 
-  incrementPreviewCount 
-} from "@/lib/previewLimiter";
-import { useAuth } from "@/app/providers/AuthProvider";
-import { logger } from "@/lib/logger";
+import { useAssemblyGeneration } from "@/modules/bond-generator/hooks/useAssemblyGeneration";
 import type { AssembledBond } from "@/modules/bond-generator/types";
 
 interface AssemblyGenerationProps {
@@ -29,95 +38,23 @@ export function AssemblyGeneration({
   isGenerating = false,
   templateFile = null
 }: AssemblyGenerationProps) {
-  const { user } = useAuth();
-  // Preview modal state
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-  
-  // Account gate state
-  const [showAccountGate, setShowAccountGate] = useState(false);
-  const [accountGateReason, setAccountGateReason] = useState<'preview_limit' | 'download'>('download');
-  
-  // Preview limit state
-  const [previewsRemaining, setPreviewsRemaining] = useState(3);
-
-  // Load preview count from localStorage on mount
-  useEffect(() => {
-    setPreviewsRemaining(getPreviewsRemaining());
-  }, []);
-
-  const handlePreviewFirst = async () => {
-    if (!bonds || bonds.length === 0 || !templateFile) return;
-    
-    // Check preview limit (skip for authenticated users)
-    if (!user && !hasPreviewsRemaining()) {
-      logger.info('Preview limit reached for guest user, showing account gate');
-      setAccountGateReason('preview_limit');
-      setShowAccountGate(true);
-      return;
-    }
-    
-    setIsLoadingPreview(true);
-    setShowPreviewModal(true);
-    
-    try {
-      logger.info('Generating bond preview', { 
-        bondIndex: 0,
-        authenticated: !!user 
-      });
-      
-      const formData = new FormData();
-      formData.append('template', templateFile);
-      formData.append('bondData', JSON.stringify(bonds[0]));
-      
-      const response = await fetch('/api/bond-generator/preview-filled-bond-public', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setPreviewHtml(data.html);
-        
-        // Only increment counter for guest users
-        if (!user) {
-          incrementPreviewCount();
-          setPreviewsRemaining(getPreviewsRemaining());
-        }
-        
-        logger.info('Bond preview generated successfully', { 
-          authenticated: !!user,
-          previewsRemaining: user ? 'unlimited' : getPreviewsRemaining() 
-        });
-      } else {
-        logger.warn('Preview API returned error', { status: response.status });
-        setPreviewHtml(null);
-      }
-    } catch (error) {
-      logger.error('Preview failed', { 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      });
-      setPreviewHtml(null);
-    } finally {
-      setIsLoadingPreview(false);
-    }
-  };
-
-  const handleGenerateClick = () => {
-    // Check if user is authenticated
-    if (!user) {
-      // Guest user - show account gate
-      logger.info('Generate clicked without auth, showing gate');
-      setAccountGateReason('download');
-      setShowAccountGate(true);
-      return;
-    }
-    
-    // User is authenticated - proceed with generation
-    logger.info('Generate clicked with auth, proceeding', { userId: user.id });
-    onGenerate();
-  };
+  // ✅ DUMB COMPONENT: Just call the hook
+  const {
+    showPreviewModal,
+    previewHtml,
+    isLoadingPreview,
+    previewsRemaining,
+    showAccountGate,
+    accountGateReason,
+    handlePreviewFirst,
+    handleGenerateClick,
+    closePreviewModal,
+    closeAccountGate,
+  } = useAssemblyGeneration({
+    bonds,
+    templateFile,
+    onGenerate,
+  });
 
   if (!bonds || bonds.length === 0) {
     return (
@@ -297,7 +234,7 @@ export function AssemblyGeneration({
                 <p className="text-sm text-gray-400">Sample of first bond certificate</p>
               </div>
               <button
-                onClick={() => setShowPreviewModal(false)}
+                onClick={closePreviewModal}
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -337,7 +274,7 @@ export function AssemblyGeneration({
               <Button 
                 variant="glass"
                 size="medium"
-                onClick={() => setShowPreviewModal(false)}
+                onClick={closePreviewModal}
                 className="w-full"
               >
                 Close Preview
@@ -353,7 +290,7 @@ export function AssemblyGeneration({
         reason={accountGateReason}
         bondCount={bonds?.length || 0}
         previewsUsed={3 - previewsRemaining}
-        onClose={() => setShowAccountGate(false)}
+        onClose={closeAccountGate}
       />
     </div>
   );

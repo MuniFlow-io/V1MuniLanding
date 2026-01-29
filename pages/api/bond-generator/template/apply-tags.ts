@@ -10,7 +10,6 @@
  * AUTH: App-level (withApiAuth) - User must be logged in
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { handleServiceError } from '@/lib/errors/ApiError';
 import { logger } from '@/lib/logger';
@@ -18,7 +17,7 @@ import { replaceAllBlanksWithTags } from '@/lib/services/bond-generator/blankSpa
 import * as Sentry from '@sentry/nextjs';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export const config = {
   api: { bodyParser: false },
@@ -30,7 +29,7 @@ interface Assignment {
   tagName: string;
 }
 
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -164,4 +163,5 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// PUBLIC endpoint - no auth required
+export default withRequestId(handler);

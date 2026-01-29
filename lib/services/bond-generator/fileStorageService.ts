@@ -46,6 +46,11 @@ export async function uploadTemplateFile(
   file: File
 ): Promise<ServiceResult<string>> {
   try {
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not initialized');
+      return failure('STORAGE_ERROR', 'Storage service not configured');
+    }
+
     const path = buildPath(userId, draftId, 'template', file.name);
 
     logger.info('Uploading template file', { userId, draftId, path, size: file.size });
@@ -78,6 +83,11 @@ export async function uploadMaturityFile(
   file: File
 ): Promise<ServiceResult<string>> {
   try {
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not initialized');
+      return failure('STORAGE_ERROR', 'Storage service not configured');
+    }
+
     const path = buildPath(userId, draftId, 'maturity', file.name);
 
     logger.info('Uploading maturity file', { userId, draftId, path, size: file.size });
@@ -110,6 +120,11 @@ export async function uploadCusipFile(
   file: File
 ): Promise<ServiceResult<string>> {
   try {
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not initialized');
+      return failure('STORAGE_ERROR', 'Storage service not configured');
+    }
+
     const path = buildPath(userId, draftId, 'cusip', file.name);
 
     logger.info('Uploading CUSIP file', { userId, draftId, path, size: file.size });
@@ -142,6 +157,11 @@ export async function downloadFile(
   storagePath: string
 ): Promise<ServiceResult<Blob>> {
   try {
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not initialized');
+      return failure('STORAGE_ERROR', 'Storage service not configured');
+    }
+
     logger.info('Downloading file', { userId, path: storagePath });
 
     const { data, error } = await supabaseAdmin.storage.from(BUCKET_NAME).download(storagePath);
@@ -173,6 +193,11 @@ export async function deleteDraftFiles(
   draftId: string
 ): Promise<ServiceResult<void>> {
   try {
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not initialized');
+      return failure('STORAGE_ERROR', 'Storage service not configured');
+    }
+
     const folderPath = `${userId}/${draftId}`;
 
     logger.info('Deleting draft files', { userId, draftId, folderPath });

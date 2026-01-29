@@ -17,13 +17,14 @@
  * - Loading states
  */
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSignIn } from "@/modules/auth/hooks/useSignIn";
 import { Navigation } from "@/components/layout/Navigation";
 import { Button } from "@/components/ui/Button";
 
-export default function SignInPage() {
+function SignInForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams?.get('redirect') || '/bond-generator/workbench';
   
@@ -145,5 +146,13 @@ export default function SignInPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="bg-black min-h-screen"><div className="pt-32 text-center text-white">Loading...</div></div>}>
+      <SignInForm />
+    </Suspense>
   );
 }

@@ -7,20 +7,19 @@
  * - For preview UI
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import { parseCusipExcel } from '@/lib/services/bond-generator/parsing/cusip/cusipParser';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  logger.info('Parsing CUSIP schedule', { userId: req.user.id });
+  logger.info('Parsing CUSIP schedule (public)');
 
   try {
     // Parse form data
@@ -63,7 +62,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// PUBLIC endpoint - no auth required
+export default withRequestId(handler);
 
 export const config = {
   api: {

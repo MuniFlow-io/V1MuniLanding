@@ -1,21 +1,16 @@
 /**
- * Session API
+ * Session Check API
  * 
  * ARCHITECTURE: Backend API (Layer 4)
- * - Gets current user session
- * - Calls Supabase auth service
+ * - Checks if user has valid session
+ * - Uses server-side Supabase client to read cookies
  * - Returns user data if authenticated
  * - NO AUTH REQUIRED (checking session)
- * 
- * ELITE STANDARDS:
- * - Proper logging
- * - Error handling
- * - <100 lines
  */
 
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -24,7 +19,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    // Call Supabase auth service
+    // Create server client that reads cookies from request
+    const supabase = createSupabaseServerClient(req, res);
+
+    // Read session from cookies
     const { data: { session }, error } = await supabase.auth.getSession();
 
     if (error) {
@@ -32,11 +30,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(500).json({ error: error.message });
     }
 
-    if (!session || !session.user) {
+    if (!session) {
       return res.status(200).json({ session: null });
     }
 
-    logger.info('Session retrieved', { userId: session.user.id });
+    logger.info('Session validated', { userId: session.user.id });
 
     return res.status(200).json({
       session: {
@@ -47,7 +45,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       },
     });
   } catch (error) {
-    logger.error('Session check failed', {
+    logger.error('Session check error', {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 

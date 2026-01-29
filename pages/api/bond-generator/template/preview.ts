@@ -8,16 +8,16 @@
  * - Returns HTML for full-screen preview
  * - NO auto-detection - user manually selects text
  *
- * AUTH: App-level (withApiAuth) - User must be logged in
+ * AUTH: PUBLIC - No authentication required (freemium model)
+ * Anyone can preview templates. Auth only needed for final generation.
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import { convertDocxToHtml } from '@/lib/services/bond-generator/docxToHtml';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // ============================================================================
 // CONFIGURATION
@@ -49,7 +49,7 @@ interface ErrorResponse {
 // ============================================================================
 
 async function handler(
-  req: AuthenticatedRequest,
+  req: NextApiRequest,
   res: NextApiResponse<PreviewResponse | ErrorResponse>
 ) {
   if (req.method !== 'POST') {
@@ -57,9 +57,7 @@ async function handler(
   }
 
   try {
-    logger.info('Template preview request from authenticated user', {
-      userId: req.user.id,
-    });
+    logger.info('Template preview request (public)');
 
     // Parse multipart form data
     const form = formidable({ multiples: false, maxFileSize: 10 * 1024 * 1024 });
@@ -140,4 +138,5 @@ async function handler(
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// PUBLIC endpoint - no auth required
+export default withRequestId(handler);

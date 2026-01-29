@@ -16,6 +16,7 @@ export interface BondRow {
   principal_amount: number;
   cusip_no: string;
   coupon_rate: number;
+  dated_date?: string; // Optional dated date field
 }
 
 export interface NumberedBond extends BondRow {

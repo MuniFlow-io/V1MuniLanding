@@ -64,8 +64,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
     // Get storage path for requested file type
     let storagePath: string | undefined;
-    let filename: string;
-    let mimeType: string;
+    let filename: string = '';
+    let mimeType: string = 'application/octet-stream'; // Default mime type
 
     if (fileType === 'template' && draft.template_file) {
       storagePath = draft.template_file.storage_path;

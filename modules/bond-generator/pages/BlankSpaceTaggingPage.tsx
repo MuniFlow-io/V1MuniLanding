@@ -15,6 +15,9 @@
 
 import { theme } from '@/modules/app/constants/theme';
 import { Check, CheckCircle, ChevronLeft, Error as ErrorIcon, Info } from '@mui/icons-material';
+
+// Extract colors from theme for easier access
+const colors = theme.colors;
 import {
   Alert,
   Box,
@@ -116,6 +119,7 @@ export function BlankSpaceTaggingPage({
         const response = await fetch('/api/bond-generator/template/preview', {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: formData,
         });
 
@@ -400,13 +404,13 @@ export function BlankSpaceTaggingPage({
       </Drawer>
 
       {/* Toast Notifications */}
-      <Snackbar
-        open={toast !== null}
-        autoHideDuration={3000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        {toast && (
+      {toast && (
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          onClose={() => setToast(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
           <Alert
             severity={toast.severity}
             onClose={() => setToast(null)}
@@ -442,8 +446,8 @@ export function BlankSpaceTaggingPage({
           >
             {toast.message}
           </Alert>
-        )}
-      </Snackbar>
+        </Snackbar>
+      )}
     </Box>
   );
 }

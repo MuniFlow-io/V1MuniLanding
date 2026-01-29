@@ -22,8 +22,9 @@
  * 7. Download ZIP
  */
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/app/providers/AuthProvider';
+import { logger } from '@/lib/logger';
 import { assembleBondsApi, generateBondsApi } from '../api/bondGeneratorApi';
 import { getLatestDraftApi, saveDraftWithFilesApi, restoreDraftFilesApi } from '../api/draftApi';
 import type { AssembledBond, BondGeneratorStep, TagMap } from '../types';
@@ -64,10 +65,13 @@ export interface UseBondGeneratorResult {
 
 export function useBondGenerator(): UseBondGeneratorResult {
   // =========================================================================
+  // AUTH CONTEXT
+  // =========================================================================
+  const { user } = useAuth();
+  
+  // =========================================================================
   // STATE
   // =========================================================================
-  const searchParams = useSearchParams();
-
   const [step, setStep] = useState<BondGeneratorStep>('upload-template');
   const [templateFile, setTemplateFile] = useState<File | null>(null);
   const [maturityFile, setMaturityFile] = useState<File | null>(null);
@@ -90,7 +94,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
   const [error, setError] = useState<string | null>(null);
   const [isFinalized, setIsFinalized] = useState(false);
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
-  const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(false); // Start false, show after draft check
+  const [showLegalDisclaimer, setShowLegalDisclaimer] = useState(true); // Always show on mount
   const [legalAccepted, setLegalAccepted] = useState(false);
   const [isRestoringDraft, setIsRestoringDraft] = useState(true);
 
@@ -107,48 +111,58 @@ export function useBondGenerator(): UseBondGeneratorResult {
 
   /**
    * Load saved draft on mount
-   * Restores user's progress from database
+   * - Authenticated users: Load from database
+   * - Unauthenticated users: Load from localStorage
    */
   useEffect(() => {
     if (hasLoadedDraft.current) return;
 
     const loadDraft = async () => {
       try {
-        // ✅ FIX: Check if user wants to start fresh (new=true query param)
-        const isNewSession = searchParams?.get('new') === 'true';
+        let draft = null;
 
-        if (isNewSession) {
-          // ✅ FIX: Clear draft ID so auto-save creates NEW draft instead of updating
-          currentDraftId.current = null;
-          hasLoadedDraft.current = true;
-          setIsRestoringDraft(false);
-          setShowLegalDisclaimer(true); // Show for new sessions
-          return;
+        // AUTHENTICATED: Load from database
+        if (user) {
+          draft = await getLatestDraftApi();
+        } 
+        // UNAUTHENTICATED: Load from localStorage
+        else {
+          const saved = localStorage.getItem('bond-generator-draft');
+          if (saved) {
+            try {
+              draft = JSON.parse(saved);
+            } catch {
+              // Invalid JSON, ignore
+            }
+          }
         }
 
-        const draft = await getLatestDraftApi();
-
         if (draft) {
-          // Store draft ID for future saves
-          currentDraftId.current = draft.id;
-
-          // ✅ CRITICAL: Restore FILES FIRST before setting step
-          // This prevents race condition where UI renders with step but no files
-          try {
-            const restoredFiles = await restoreDraftFilesApi(draft.id);
-
-            if (restoredFiles.template) {
-              setTemplateFile(restoredFiles.template);
-            }
-            if (restoredFiles.maturity) {
-              setMaturityFile(restoredFiles.maturity);
-            }
-            if (restoredFiles.cusip) {
-              setCusipFile(restoredFiles.cusip);
-            }
-          } catch {
-            // Continue anyway - user can re-upload files
+          // Store draft ID for future saves (authenticated only)
+          if (user && draft.id) {
+            currentDraftId.current = draft.id;
           }
+
+          // ✅ AUTHENTICATED: Restore files from database
+          if (user && draft.id) {
+            try {
+              const restoredFiles = await restoreDraftFilesApi(draft.id);
+
+              if (restoredFiles.template) {
+                setTemplateFile(restoredFiles.template);
+              }
+              if (restoredFiles.maturity) {
+                setMaturityFile(restoredFiles.maturity);
+              }
+              if (restoredFiles.cusip) {
+                setCusipFile(restoredFiles.cusip);
+              }
+            } catch {
+              // Continue anyway - user can re-upload files
+            }
+          }
+          // ✅ UNAUTHENTICATED: Files not persisted (too large for localStorage)
+          // User will need to re-upload files if they refresh
 
           // Tag map IS restored (most valuable data - manual work)
           if (draft.tag_map) {
@@ -170,8 +184,8 @@ export function useBondGenerator(): UseBondGeneratorResult {
           setIsFinalized(draft.is_finalized);
           setLegalAccepted(draft.legal_accepted ?? false);
 
-          // Show legal disclaimer ONLY if NOT already accepted
-          setShowLegalDisclaimer(!draft.legal_accepted);
+          // Legal disclaimer already showing (default true)
+          // User must accept every session
 
           setHasSavedDraft(true);
 
@@ -192,7 +206,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
     };
 
     loadDraft();
-  }, [searchParams]);
+  }, []); // Run once on mount
 
   /**
    * Auto-save draft on state change (debounced)
@@ -217,31 +231,48 @@ export function useBondGenerator(): UseBondGeneratorResult {
     saveTimeoutRef.current = setTimeout(() => {
       const saveDraft = async () => {
         try {
-          // ✅ NEW: Save WITH actual files (not just metadata)
-          const savedDraft = await saveDraftWithFilesApi(
-            {
+          // AUTHENTICATED: Save to database
+          if (user) {
+            const savedDraft = await saveDraftWithFilesApi(
+              {
+                current_step: step,
+                tag_map: tagMap,
+                assembled_bonds: bonds,
+                is_finalized: isFinalized,
+                legal_accepted: legalAccepted,
+                draft_id: currentDraftId.current || undefined,
+              },
+              {
+                template: templateFile || undefined,
+                maturity: maturityFile || undefined,
+                cusip: cusipFile || undefined,
+              }
+            );
+
+            // Update draft ID after save
+            if (savedDraft.id) {
+              currentDraftId.current = savedDraft.id;
+            }
+
+            setHasSavedDraft(true);
+          } 
+          // UNAUTHENTICATED: Save to localStorage
+          else {
+            const draftData = {
               current_step: step,
               tag_map: tagMap,
-              assembled_bonds: bonds, // ✅ NEW: Save assembled bonds
+              assembled_bonds: bonds,
               is_finalized: isFinalized,
               legal_accepted: legalAccepted,
-              draft_id: currentDraftId.current || undefined,
-            },
-            {
-              template: templateFile || undefined,
-              maturity: maturityFile || undefined,
-              cusip: cusipFile || undefined,
-            }
-          );
+              // Note: Files NOT saved (too large for localStorage)
+              // User must re-upload if they refresh
+            };
 
-          // Update draft ID after save (in case it was created)
-          if (savedDraft.id) {
-            currentDraftId.current = savedDraft.id;
+            localStorage.setItem('bond-generator-draft', JSON.stringify(draftData));
+            setHasSavedDraft(true);
           }
-
-          setHasSavedDraft(true);
         } catch {
-          // Silent fail - don't interrupt user flow if save fails
+          // Silent fail - don't interrupt user flow
         }
       };
 
@@ -254,7 +285,49 @@ export function useBondGenerator(): UseBondGeneratorResult {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [step, templateFile, maturityFile, cusipFile, tagMap, isFinalized, legalAccepted]);
+  }, [step, templateFile, maturityFile, cusipFile, tagMap, isFinalized, legalAccepted, user]);
+
+  /**
+   * Migrate localStorage draft to database when user signs in
+   * Called automatically when user auth state changes
+   */
+  useEffect(() => {
+    if (!user || !hasLoadedDraft.current) return;
+
+    const migrateLocalDraft = async () => {
+      try {
+        const localDraft = localStorage.getItem('bond-generator-draft');
+        if (!localDraft) return;
+
+        const draftData = JSON.parse(localDraft);
+        
+        // Save to database
+        await saveDraftWithFilesApi(
+          {
+            current_step: draftData.current_step,
+            tag_map: draftData.tag_map,
+            assembled_bonds: draftData.assembled_bonds,
+            is_finalized: draftData.is_finalized,
+            legal_accepted: draftData.legal_accepted,
+          },
+          {
+            template: templateFile || undefined,
+            maturity: maturityFile || undefined,
+            cusip: cusipFile || undefined,
+          }
+        );
+
+        // Clear localStorage after successful migration
+        localStorage.removeItem('bond-generator-draft');
+        
+        logger.info('Migrated localStorage draft to database', { userId: user.id });
+      } catch {
+        // Migration failed - not critical, user can continue
+      }
+    };
+
+    migrateLocalDraft();
+  }, [user]); // Only run when user auth state changes
 
   // =========================================================================
   // ACTIONS

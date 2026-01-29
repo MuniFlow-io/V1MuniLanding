@@ -29,7 +29,7 @@ export interface TableColumn {
 
 export interface TableRow {
   id: string;
-  [key: string]: string | number | boolean | null;
+  [key: string]: string | number | boolean | null | string[] | undefined;
   _status?: 'valid' | 'warning' | 'error';
   _errors?: string[];
 }

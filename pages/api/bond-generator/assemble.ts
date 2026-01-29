@@ -10,14 +10,13 @@
  * AUTH: App-level (withApiAuth) - User must be logged in
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import { assembleBonds, type BondNumberingConfig } from '@/lib/services/bond-generator';
 import { convertCsvToExcel } from '@/lib/services/bond-generator/parsing/csv/csvToExcel';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Disable default body parser for file uploads
 export const config = {
@@ -26,7 +25,7 @@ export const config = {
   },
 };
 
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -101,7 +100,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         });
       }
 
-      maturityBuffer = convertResult.data;
+      maturityBuffer = Buffer.from(convertResult.data);
       logger.info('Maturity CSV converted successfully');
     }
 
@@ -118,7 +117,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         });
       }
 
-      cusipBuffer = convertResult.data;
+      cusipBuffer = Buffer.from(convertResult.data);
       logger.info('CUSIP CSV converted successfully');
     }
 
@@ -165,4 +164,5 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// PUBLIC endpoint - no auth required
+export default withRequestId(handler);

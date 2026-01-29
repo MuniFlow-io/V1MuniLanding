@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
+import { useState, useRef } from "react";
 
 interface FileUploadProps {
   onUpload: (file: File) => void;
@@ -21,16 +20,9 @@ export function FileUpload({
   existingFile = null, // ✅ NEW: Existing uploaded file
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(existingFile);
   const [validationError, setValidationError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // ✅ NEW: Sync with existing file from parent
-  useEffect(() => {
-    if (existingFile) {
-      setSelectedFile(existingFile);
-    }
-  }, [existingFile]);
 
   const validateFile = (file: File): string | null => {
     // Check file type against accept prop

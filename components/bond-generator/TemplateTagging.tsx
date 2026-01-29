@@ -43,7 +43,7 @@ export function TemplateTagging({
     if (restoredTagMap?.tags) {
       const positions: TagPosition[] = restoredTagMap.tags.map((t, idx) => ({
         id: `restored-${idx}`,
-        tag: t.tag,
+        tag: t.tag as BondTag, // Assert type from restored data
         text: '', // We don't save text, just tag type
         position: t.position,
       }));
@@ -51,7 +51,7 @@ export function TemplateTagging({
       
       // Mark tags as assigned
       const tags = new Map<BondTag, boolean>();
-      restoredTagMap.tags.forEach(t => tags.set(t.tag, true));
+      restoredTagMap.tags.forEach(t => tags.set(t.tag as BondTag, true));
       setAssignedTags(tags);
     }
   }, [restoredTagMap]);
@@ -64,10 +64,11 @@ export function TemplateTagging({
       setIsLoadingPreview(true);
       try {
         const formData = new FormData();
-        formData.append('template', templateFile);
+        formData.append('template', templateFile as File); // templateFile is guaranteed non-null by guard above
 
         const response = await fetch('/api/bond-generator/template/preview', {
           method: 'POST',
+          credentials: 'include',
           body: formData,
         });
 
@@ -77,9 +78,8 @@ export function TemplateTagging({
 
         const data = await response.json();
         setPreviewHtml(data.html);
-      } catch (error) {
-        console.error('Preview error:', error);
-        // TODO: Show error to user
+      } catch {
+        // Preview error - could show error message to user
       } finally {
         setIsLoadingPreview(false);
       }

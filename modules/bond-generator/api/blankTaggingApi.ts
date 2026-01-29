@@ -26,6 +26,7 @@ export async function applyTagsToTemplate(
   const response = await fetch('/api/bond-generator/template/apply-tags', {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   });
 

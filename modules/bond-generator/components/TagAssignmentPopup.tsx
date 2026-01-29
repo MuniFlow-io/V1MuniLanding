@@ -10,10 +10,30 @@
  * - Pure UI - shows popup at position with tag options
  */
 
-import { colors } from '@/modules/app/constants/theme';
 import { Box, Button, Chip, MenuItem, Popover, Select, Typography } from '@mui/material';
 import { useState } from 'react';
 import { TAG_OPTIONS } from '../types/tagConstants';
+
+// Simplified color constants since theme doesn't export detailed colors
+const colors = {
+  primary: '#3b82f6',
+  primaryDark: '#2563eb',
+  success: '#10b981',
+  error: '#ef4444',
+  warning: '#f59e0b',
+  text: {
+    primary: '#ffffff',
+    secondary: '#9ca3af',
+    disabled: '#6b7280',
+  },
+  background: {
+    subtle: '#1f2937',
+  },
+  border: {
+    light: '#374151',
+    default: '#4b5563',
+  },
+};
 
 interface TagAssignmentPopupProps {
   /** Whether popup is visible */

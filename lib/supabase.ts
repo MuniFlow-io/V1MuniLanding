@@ -1,6 +1,7 @@
 // Supabase client configuration and utilities
 // This file contains the main Supabase client setup and common utilities
 
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env['NEXT_PUBLIC_SUPABASE_URL'] || 'https://placeholder.supabase.co';
@@ -8,15 +9,16 @@ const supabaseAnonKey = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] || 'placeho
 const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
 // Client-side Supabase client (safe for browser)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    storageKey: 'muniflow-landing-auth',
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-  },
-});
+// CRITICAL: Uses @supabase/ssr to properly set cookies for server-side auth
+export const supabase = typeof window !== 'undefined'
+  ? createBrowserClient(supabaseUrl, supabaseAnonKey)
+  : createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+    });
 
 // Server-side Supabase client with service role (admin privileges)
 export const supabaseAdmin = supabaseServiceKey

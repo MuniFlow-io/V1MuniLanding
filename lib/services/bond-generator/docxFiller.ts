@@ -115,15 +115,24 @@ function createReplacementsMap(
   bond: AssembledBond,
   bondInfo?: BondInfo | null
 ): Record<string, string> {
+  // Defensive: Handle missing or invalid data gracefully
+  const principalAmount = typeof bond.principal_amount === 'number' && !isNaN(bond.principal_amount)
+    ? bond.principal_amount
+    : 0;
+  
+  const couponRate = typeof bond.coupon_rate === 'number' && !isNaN(bond.coupon_rate)
+    ? bond.coupon_rate
+    : 0;
+
   return {
-    BOND_NUMBER: bond.bond_number,
+    BOND_NUMBER: bond.bond_number || '',
     SERIES: bond.series || '', // Empty string for optional tags
-    MATURITY_DATE: formatDate(bond.maturity_date), // Format ISO → "Month Day, Year"
-    PRINCIPAL_AMOUNT_NUM: bond.principal_amount.toLocaleString('en-US'),
-    PRINCIPAL_AMOUNT_WORDS: bond.principal_words,
-    INTEREST_RATE: `${bond.coupon_rate}%`,
-    CUSIP_NO: bond.cusip_no,
-    DATED_DATE: formatDate(bond.dated_date), // Format ISO → "Month Day, Year"
+    MATURITY_DATE: bond.maturity_date ? formatDate(bond.maturity_date) : '', // Format ISO → "Month Day, Year"
+    PRINCIPAL_AMOUNT_NUM: principalAmount.toLocaleString('en-US'),
+    PRINCIPAL_AMOUNT_WORDS: bond.principal_words || '',
+    INTEREST_RATE: `${couponRate}%`,
+    CUSIP_NO: bond.cusip_no || '',
+    DATED_DATE: bond.dated_date ? formatDate(bond.dated_date) : '', // Format ISO → "Month Day, Year"
     // Optional tags from form fields
     ISSUER_NAME: bondInfo?.issuerName || '',
     BOND_TITLE: bondInfo?.bondTitle || '',

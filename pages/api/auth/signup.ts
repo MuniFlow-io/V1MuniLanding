@@ -2,22 +2,16 @@
  * Sign Up API
  * 
  * ARCHITECTURE: Backend API (Layer 4)
- * - Creates new user account
- * - Calls Supabase auth service
- * - Sets auth cookie
+ * - Creates new user account and signs them in
+ * - Uses server-side Supabase client for cookie handling
  * - NO AUTH REQUIRED (creating new account)
- * 
- * ELITE STANDARDS:
- * - ZOD validation
- * - Proper logging
- * - Error handling
- * - <150 lines
  */
 
 import { z } from 'zod';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import { supabaseAdmin } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const signUpSchema = z.object({
@@ -48,24 +42,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     logger.info('Sign up request', { email });
 
-    // Call Supabase auth service
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    // Check if supabaseAdmin is configured
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not configured');
+      return res.status(500).json({ error: 'Authentication service not configured' });
+    }
+
+    // Step 1: Create user using admin API
+    const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Auto-confirm for now (no email verification)
     });
 
-    if (error) {
-      logger.error('Supabase sign up failed', { 
+    if (createError) {
+      logger.error('Supabase user creation failed', { 
         email, 
-        error: error.message 
+        error: createError.message 
       });
       return res.status(400).json({ 
-        error: error.message 
+        error: createError.message 
       });
     }
 
-    if (!data.user) {
+    if (!userData.user) {
       logger.error('No user returned from Supabase');
       return res.status(500).json({ 
         error: 'Failed to create account' 
@@ -73,15 +73,47 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     logger.info('User created successfully', { 
-      userId: data.user.id,
-      email: data.user.email 
+      userId: userData.user.id, 
+      email: userData.user.email 
     });
 
-    return res.status(200).json({
+    // Step 2: Sign them in immediately (auto-login after signup)
+    logger.info('Auto-signing in new user', { userId: userData.user.id });
+    
+    // Create server client that sets cookies in response
+    const supabase = createSupabaseServerClient(req, res);
+    
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      logger.error('Auto sign-in failed after signup', { 
+        userId: userData.user.id, 
+        error: signInError.message 
+      });
+      // User was created but couldn't be signed in automatically
+      // They can still sign in manually
+      return res.status(201).json({
+        success: true,
+        message: 'Account created. Please sign in.',
+        user: {
+          id: userData.user.id,
+          email: userData.user.email,
+        },
+      });
+    }
+
+    logger.info('User created and signed in successfully', { 
+      userId: userData.user.id 
+    });
+
+    return res.status(201).json({
       success: true,
       user: {
-        id: data.user.id,
-        email: data.user.email,
+        id: userData.user.id,
+        email: userData.user.email,
       },
     });
   } catch (error) {

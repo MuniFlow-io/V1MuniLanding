@@ -48,7 +48,7 @@ export async function getLatestDraftApi(): Promise<BondDraft | null> {
   const response = await fetch('/api/bond-generator/draft', {
     method: 'GET',
     headers,
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -73,7 +73,7 @@ export async function saveDraftApi(draftData: SaveDraftData): Promise<BondDraft>
       ...headers,
       'Content-Type': 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
     body: JSON.stringify(draftData),
   });
 
@@ -117,7 +117,7 @@ export async function saveDraftWithFilesApi(
   const response = await fetch('/api/bond-generator/draft-with-files', {
     method: 'POST',
     headers,
-    credentials: 'same-origin',
+    credentials: 'include',
     body: formData,
   });
 
@@ -140,7 +140,7 @@ export async function getAllDraftsApi(): Promise<BondDraft[]> {
   const response = await fetch('/api/bond-generator/drafts', {
     method: 'GET',
     headers,
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -162,7 +162,7 @@ export async function deleteDraftApi(draftId: string): Promise<void> {
   const response = await fetch(`/api/bond-generator/draft?draftId=${draftId}`, {
     method: 'DELETE',
     headers,
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -186,7 +186,7 @@ async function downloadDraftFile(
     {
       method: 'GET',
       headers,
-      credentials: 'same-origin',
+      credentials: 'include',
     }
   );
 

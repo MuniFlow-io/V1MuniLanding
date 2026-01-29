@@ -3,21 +3,15 @@
  * 
  * ARCHITECTURE: Backend API (Layer 4)
  * - Authenticates existing user
- * - Calls Supabase auth service
- * - Sets auth cookie
+ * - Uses server-side Supabase client for cookie handling
+ * - Sets auth cookie via Supabase SSR
  * - NO AUTH REQUIRED (creating session)
- * 
- * ELITE STANDARDS:
- * - ZOD validation
- * - Proper logging
- * - Error handling
- * - <150 lines
  */
 
 import { z } from 'zod';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const signInSchema = z.object({
@@ -48,7 +42,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     logger.info('Sign in request', { email });
 
-    // Call Supabase auth service
+    // Create server client that sets cookies in response
+    const supabase = createSupabaseServerClient(req, res);
+
+    // Authenticate user (cookies set automatically via server client)
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -81,9 +78,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       user: {
         id: data.user.id,
         email: data.user.email,
-      },
-      session: {
-        access_token: data.session.access_token,
       },
     });
   } catch (error) {

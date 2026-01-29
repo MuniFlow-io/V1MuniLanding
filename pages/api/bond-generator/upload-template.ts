@@ -10,13 +10,12 @@
  * AUTH: App-level (withApiAuth) - User must be logged in
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { extractTagsFromDocx } from '@/lib/services/bond-generator/docxParser';
 import { logger } from '@/lib/logger';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // ============================================================================
 // CONFIGURATION
@@ -71,7 +70,7 @@ function validateFileSize(size: number): boolean {
 // ============================================================================
 
 async function handler(
-  req: AuthenticatedRequest,
+  req: NextApiRequest,
   res: NextApiResponse<UploadTemplateResponse | ErrorResponse>
 ) {
   // Only accept POST
@@ -193,4 +192,5 @@ async function handler(
   }
 }
 
-export default withRequestId(withApiAuth(handler));
+// PUBLIC endpoint - no auth required
+export default withRequestId(handler);

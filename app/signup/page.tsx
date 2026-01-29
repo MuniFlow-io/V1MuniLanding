@@ -17,13 +17,14 @@
  * - Loading states
  */
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSignUp } from "@/modules/auth/hooks/useSignUp";
 import { Navigation } from "@/components/layout/Navigation";
 import { Button } from "@/components/ui/Button";
 
-export default function SignUpPage() {
+function SignUpForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams?.get('redirect') || '/bond-generator/workbench';
   
@@ -31,14 +32,16 @@ export default function SignUpPage() {
     email,
     password,
     confirmPassword,
-    isLoading,
+    status,
     error,
-    success,
     setEmail,
     setPassword,
     setConfirmPassword,
     handleSignUp,
   } = useSignUp(redirect);
+  
+  const isLoading = status === 'loading';
+  const success = status === 'success';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,5 +189,13 @@ export default function SignUpPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="bg-black min-h-screen"><div className="pt-32 text-center text-white">Loading...</div></div>}>
+      <SignUpForm />
+    </Suspense>
   );
 }

@@ -35,7 +35,7 @@ export function GenerationComplete({ bondCount, onReset }: GenerationCompletePro
       <Card variant="feature" size="large">
         <div className="space-y-6">
           <div>
-            <h4 className="text-lg font-semibold text-white mb-2">What's Next?</h4>
+            <h4 className="text-lg font-semibold text-white mb-2">What&apos;s Next?</h4>
             <p className="text-sm text-gray-400">
               Your bond certificates are ready. Here are the recommended next steps:
             </p>

@@ -56,7 +56,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ error: 'Bond data required' });
     }
 
-    const bondData = JSON.parse(bondDataJson);
+    let bondData;
+    try {
+      bondData = JSON.parse(bondDataJson);
+    } catch (parseError) {
+      logger.error('Failed to parse bond data JSON', {
+        error: parseError instanceof Error ? parseError.message : 'Unknown error',
+        bondDataJson: bondDataJson?.substring(0, 200), // Log first 200 chars
+      });
+      return res.status(400).json({ error: 'Invalid bond data format' });
+    }
 
     // Read template buffer
     const templateBuffer = await fs.readFile(templateFile.filepath);
@@ -64,22 +73,31 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     logger.info('Filling bond template for public preview', {
       bondNumber: bondData.bond_number,
       cusip: bondData.cusip_no,
+      hasPrincipalAmount: !!bondData.principal_amount,
+      hasPrincipalWords: !!bondData.principal_words,
+      hasMaturityDate: !!bondData.maturity_date,
+      hasDatedDate: !!bondData.dated_date,
+      hasCouponRate: !!bondData.coupon_rate,
     });
 
     // Fill template with bond data
     const fillResult = await fillDocxTemplate(templateBuffer, bondData);
 
-    if (!fillResult.success || !fillResult.data) {
-      logger.error('Template fill failed', { error: fillResult.error });
+    if (fillResult.error || !fillResult.data) {
+      logger.error('Template fill failed', { 
+        error: fillResult.error,
+        bondData: JSON.stringify(bondData, null, 2), // Log full bond data for debugging
+      });
       return res.status(500).json({ 
-        error: fillResult.error?.message || 'Failed to fill template' 
+        error: fillResult.error?.message || 'Failed to fill template',
+        code: fillResult.error?.code,
       });
     }
 
     // Convert filled DOCX to HTML for preview
     const htmlResult = await convertDocxToHtml(fillResult.data);
 
-    if (!htmlResult.success || !htmlResult.data) {
+    if (htmlResult.error || !htmlResult.data) {
       logger.error('HTML conversion failed', { error: htmlResult.error });
       return res.status(500).json({ 
         error: htmlResult.error?.message || 'Failed to convert to HTML' 

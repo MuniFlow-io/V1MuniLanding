@@ -74,7 +74,7 @@ export default function BondGeneratorGuidePage() {
                           Ready to get started?
                         </h3>
                         <p className="text-sm text-gray-400 leading-relaxed">
-                          You've reviewed the guide. Now try the tool with your bond form template, maturity schedule, and CUSIP file.
+                          You&apos;ve reviewed the guide. Now try the tool with your bond form template, maturity schedule, and CUSIP file.
                         </p>
                       </div>
                       <div className="pt-4 space-y-3">

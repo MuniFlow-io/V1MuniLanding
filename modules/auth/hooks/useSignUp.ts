@@ -25,13 +25,14 @@ import { resetPreviewCount } from '@/lib/previewLimiter';
 import { resetGenerationCount } from '@/lib/generationLimiter';
 import { logger } from '@/lib/logger';
 
+type SignUpStatus = 'idle' | 'loading' | 'success' | 'error';
+
 interface UseSignUpResult {
   email: string;
   password: string;
   confirmPassword: string;
-  isLoading: boolean;
+  status: SignUpStatus;
   error: string | null;
-  success: boolean;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
   setConfirmPassword: (password: string) => void;
@@ -44,9 +45,8 @@ export function useSignUp(redirectPath?: string): UseSignUpResult {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<SignUpStatus>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleSignUp = async () => {
     setError(null);
@@ -67,32 +67,30 @@ export function useSignUp(redirectPath?: string): UseSignUpResult {
       return;
     }
     
-    setIsLoading(true);
+    setStatus('loading');
     
     try {
-      logger.info('Calling sign up API', { email });
-      
-      // Call Frontend API (which calls Backend API → Service)
+      // Create account
       await authApi.signUp(email, password);
       
-      logger.info('Sign up successful', { email });
+      // Sign in to get session cookie
+      await authApi.signIn(email, password);
       
-      // Reset counters for new user (unlimited access)
+      logger.info('Sign up and sign in successful', { email });
+      
+      // Reset counters
       resetPreviewCount();
       resetGenerationCount();
       
-      setSuccess(true);
+      setStatus('success');
       
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        router.push(redirectPath || '/bond-generator/workbench');
-      }, 2000);
+      // Redirect (session cookie is now set)
+      router.push(redirectPath || '/bond-generator/workbench');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
       logger.error('Sign up failed', { email, error: errorMessage });
+      setStatus('error');
       setError(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -100,9 +98,8 @@ export function useSignUp(redirectPath?: string): UseSignUpResult {
     email,
     password,
     confirmPassword,
-    isLoading,
+    status,
     error,
-    success,
     setEmail,
     setPassword,
     setConfirmPassword,

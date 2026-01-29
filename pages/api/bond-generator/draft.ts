@@ -3,14 +3,19 @@
  *
  * ARCHITECTURE: Backend API (Layer 4)
  * - GET: Fetch user's latest draft
- * - POST: Save/update draft
- * - DELETE: Delete draft
- * - Uses withApiAuth for authentication
- * - Validates input with simple checks
- * - Calls draftManager service
+ * - POST: Save/update draft (requires auth)
+ * - DELETE: Delete draft (requires auth)
+ * 
+ * AUTH STRATEGY:
+ * - GET: Allow anonymous users (returns null if not logged in)
+ * - POST/DELETE: Require authentication
+ * 
+ * This supports freemium model:
+ * - Anonymous users can explore (no draft saving)
+ * - Logged-in users get draft persistence
  */
 
-import { withApiAuth, type AuthenticatedRequest } from '@/lib/auth/withApiAuth';
+import { createSupabaseServerClient } from '@/lib/auth/supabaseServer';
 import { withRequestId } from '@/lib/middleware/withRequestId';
 import { logger } from '@/lib/logger';
 import {
@@ -19,13 +24,23 @@ import {
   saveDraft,
   type SaveDraftInput,
 } from '@/lib/services/bond-generator/draftManager';
-import type { NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  const userId = req.user.id;
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Check for session (but don't require it for GET)
+  const supabase = createSupabaseServerClient(req, res);
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const userId = session?.user?.id;
 
-  // GET: Fetch latest draft
+  // GET: Fetch latest draft (allowed for anonymous users)
   if (req.method === 'GET') {
+    // If no user session, return null (no draft for anonymous users)
+    if (!userId) {
+      logger.info('GET /api/bond-generator/draft - anonymous user');
+      return res.status(200).json({ draft: null });
+    }
+
     logger.info('GET /api/bond-generator/draft', { userId });
 
     const result = await getLatestDraft(userId);
@@ -40,8 +55,17 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     return res.status(200).json({ draft: result.data });
   }
 
-  // POST: Save/update draft
+  // POST: Save/update draft (requires auth)
   if (req.method === 'POST') {
+    // POST requires authentication
+    if (!userId) {
+      logger.warn('POST /api/bond-generator/draft - unauthorized');
+      return res.status(401).json({ 
+        error: 'Authentication required to save drafts',
+        code: 'UNAUTHORIZED'
+      });
+    }
+
     logger.info('POST /api/bond-generator/draft', { userId });
 
     const draftData = req.body as SaveDraftInput;
@@ -85,8 +109,17 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     return res.status(200).json({ draft: result.data });
   }
 
-  // DELETE: Delete draft
+  // DELETE: Delete draft (requires auth)
   if (req.method === 'DELETE') {
+    // DELETE requires authentication
+    if (!userId) {
+      logger.warn('DELETE /api/bond-generator/draft - unauthorized');
+      return res.status(401).json({ 
+        error: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+    }
+
     logger.info('DELETE /api/bond-generator/draft', { userId });
 
     const { draftId } = req.query;
@@ -114,4 +147,5 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
-export default withRequestId(withApiAuth(handler));
+// No withApiAuth - we handle auth manually to support freemium
+export default withRequestId(handler);

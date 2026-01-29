@@ -42,51 +42,54 @@ export function DataPreview({
     async function fetchParsedData() {
       setIsLoadingData(true);
       try {
-        // Parse maturity schedule
+        // Parse maturity schedule (maturityFile is guaranteed non-null by guard above)
         const maturityFormData = new FormData();
-        maturityFormData.append('maturityFile', maturityFile);
+        maturityFormData.append('maturityFile', maturityFile as File);
 
         const maturityResponse = await fetch('/api/bond-generator/parse-maturity', {
           method: 'POST',
+          credentials: 'include',
           body: maturityFormData,
         });
 
-        // Parse CUSIP schedule
+        // Parse CUSIP schedule (cusipFile is guaranteed non-null by guard above)
         const cusipFormData = new FormData();
-        cusipFormData.append('cusipFile', cusipFile);
+        cusipFormData.append('cusipFile', cusipFile as File);
 
         const cusipResponse = await fetch('/api/bond-generator/parse-cusip', {
           method: 'POST',
+          credentials: 'include',
           body: cusipFormData,
         });
 
         if (maturityResponse.ok) {
           const maturityResult = await maturityResponse.json();
-          const rows: TableRow[] = (maturityResult.rows || []).map((row: any, index: number) => ({
+          const rows: TableRow[] = (maturityResult.rows || []).map((row: Record<string, unknown>, index: number) => ({
             id: `mat-${index}`,
-            maturity_date: row.maturity_date || '',
-            principal_amount: row.principal_amount || '',
-            coupon_rate: row.coupon_rate || '',
-            dated_date: row.dated_date || '',
-            series: row.series || '',
-            _status: row.status || 'valid' as const,
+            maturity_date: String(row.maturity_date || ''),
+            principal_amount: String(row.principal_amount || ''),
+            coupon_rate: String(row.coupon_rate || ''),
+            dated_date: String(row.dated_date || ''),
+            series: String(row.series || ''),
+            _status: (row.status as 'valid' | 'warning' | 'error') || 'valid',
           }));
           setMaturityData(rows);
         }
 
         if (cusipResponse.ok) {
           const cusipResult = await cusipResponse.json();
-          const rows: TableRow[] = (cusipResult.rows || []).map((row: any, index: number) => ({
+          const rows: TableRow[] = (cusipResult.rows || []).map((row: Record<string, unknown>, index: number) => ({
             id: `cusip-${index}`,
-            cusip: row.cusip || '',
-            maturity_date: row.maturity_date || '',
-            series: row.series || '',
-            _status: row.status || 'valid' as const,
+            cusip: String(row.cusip || ''),
+            maturity_date: String(row.maturity_date || ''),
+            series: String(row.series || ''),
+            _status: (row.status as 'valid' | 'warning' | 'error') || 'valid',
           }));
           setCusipData(rows);
         }
-      } catch (error) {
-        console.error('Error fetching parsed data:', error);
+      } catch {
+        // Error fetching parsed data - could show error message to user
+        setIsLoadingData(false);
       } finally {
         setIsLoadingData(false);
       }
