@@ -50,6 +50,7 @@ export function AssemblyGeneration({
     handleGenerateClick,
     closePreviewModal,
     closeAccountGate,
+    prepareForAuth,
   } = useAssemblyGeneration({
     bonds,
     templateFile,
@@ -291,6 +292,7 @@ export function AssemblyGeneration({
         bondCount={bonds?.length || 0}
         previewsUsed={3 - previewsRemaining}
         onClose={closeAccountGate}
+        onBeforeAuth={prepareForAuth}
       />
     </div>
   );

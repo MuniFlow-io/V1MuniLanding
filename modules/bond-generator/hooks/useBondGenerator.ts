@@ -121,6 +121,25 @@ export function useBondGenerator(): UseBondGeneratorResult {
       try {
         let draft = null;
 
+        // Check for sessionStorage first (user just authenticated)
+        const sessionTemplate = sessionStorage.getItem('bond-generator-template-file');
+        if (sessionTemplate) {
+          try {
+            const fileData = JSON.parse(sessionTemplate);
+            // Restore file from base64
+            const response = await fetch(fileData.data);
+            const blob = await response.blob();
+            const restoredFile = new File([blob], fileData.name, { type: fileData.type });
+            setTemplateFile(restoredFile);
+            logger.info('Restored template file from sessionStorage after auth');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('bond-generator-template-file');
+          } catch {
+            // Ignore restore error
+          }
+        }
+
         // AUTHENTICATED: Load from database
         if (user) {
           draft = await getLatestDraftApi();
@@ -258,17 +277,26 @@ export function useBondGenerator(): UseBondGeneratorResult {
           } 
           // UNAUTHENTICATED: Save to localStorage
           else {
+            // Save metadata
             const draftData = {
               current_step: step,
               tag_map: tagMap,
               assembled_bonds: bonds,
               is_finalized: isFinalized,
               legal_accepted: legalAccepted,
-              // Note: Files NOT saved (too large for localStorage)
-              // User must re-upload if they refresh
             };
 
             localStorage.setItem('bond-generator-draft', JSON.stringify(draftData));
+            
+            // Save file metadata (so we can detect if user needs to re-upload)
+            const fileMetadata = {
+              template: templateFile ? { name: templateFile.name, size: templateFile.size, type: templateFile.type } : null,
+              maturity: maturityFile ? { name: maturityFile.name, size: maturityFile.size, type: maturityFile.type } : null,
+              cusip: cusipFile ? { name: cusipFile.name, size: cusipFile.size, type: cusipFile.type } : null,
+            };
+            
+            localStorage.setItem('bond-generator-files-meta', JSON.stringify(fileMetadata));
+            
             setHasSavedDraft(true);
           }
         } catch {
@@ -301,7 +329,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
 
         const draftData = JSON.parse(localDraft);
         
-        // Save to database
+        // Save to database (without files - they'll be in current state)
         await saveDraftWithFilesApi(
           {
             current_step: draftData.current_step,
@@ -311,6 +339,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
             legal_accepted: draftData.legal_accepted,
           },
           {
+            // Files come from current React state, not localStorage
             template: templateFile || undefined,
             maturity: maturityFile || undefined,
             cusip: cusipFile || undefined,
@@ -327,7 +356,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
     };
 
     migrateLocalDraft();
-  }, [user]); // Only run when user auth state changes
+  }, [user, templateFile, maturityFile, cusipFile]); // Include files in deps
 
   // =========================================================================
   // ACTIONS

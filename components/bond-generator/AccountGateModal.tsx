@@ -27,6 +27,7 @@ interface AccountGateModalProps {
   bondCount: number;
   previewsUsed?: number;
   onClose: () => void;
+  onBeforeAuth?: () => void; // Optional callback before auth redirect
 }
 
 export function AccountGateModal({ 
@@ -34,8 +35,16 @@ export function AccountGateModal({
   reason, 
   bondCount,
   previewsUsed = 3,
-  onClose 
+  onClose,
+  onBeforeAuth
 }: AccountGateModalProps) {
+  
+  const handleAuthClick = () => {
+    // Call prep callback before redirecting to auth
+    if (onBeforeAuth) {
+      onBeforeAuth();
+    }
+  };
   if (!isOpen) return null;
 
   const headline = reason === 'preview_limit' 
@@ -102,17 +111,29 @@ export function AccountGateModal({
 
           {/* CTA Buttons */}
           <div className="space-y-3 pt-2">
-            <Link href="/signup?redirect=/bond-generator/workbench" className="block">
+            <Link 
+              href="/signup?redirect=/bond-generator/workbench" 
+              className="block"
+              onClick={handleAuthClick}
+            >
               <Button variant="primary" size="large" className="w-full">
                 Create Free Account →
               </Button>
             </Link>
             
-            <Link href="/contact?demo=true" className="block">
+            <Link 
+              href="/signin?redirect=/bond-generator/workbench" 
+              className="block"
+              onClick={handleAuthClick}
+            >
               <Button variant="glass" size="medium" className="w-full">
-                Request a Walkthrough
+                Sign In
               </Button>
             </Link>
+            
+            <p className="text-xs text-gray-500 text-center pt-2">
+              Already have an account? Use Sign In above
+            </p>
           </div>
 
           {/* Footer */}
