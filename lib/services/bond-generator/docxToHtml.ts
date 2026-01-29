@@ -300,6 +300,18 @@ export async function convertDocxToHtml(
       opacity: 1;
     }
     
+    /* ✅ NEW: Hide tags when toggled off */
+    body.tags-hidden .tagged-text {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+      cursor: text;
+    }
+    
+    body.tags-hidden .tagged-text[data-tag]::after {
+      display: none;
+    }
+    
     /* Print styles */
     @media print {
       body {
@@ -437,6 +449,13 @@ export async function convertDocxToHtml(
             type: 'TAG_REMOVED',
             tagId: event.data.tagId,
           }, '*');
+        }
+      } else if (event.data.type === 'TOGGLE_TAGS') {
+        // ✅ NEW: Show or hide all tags visually
+        if (event.data.visible) {
+          document.body.classList.remove('tags-hidden');
+        } else {
+          document.body.classList.add('tags-hidden');
         }
       }
     });
