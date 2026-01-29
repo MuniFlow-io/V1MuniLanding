@@ -35,8 +35,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    logger.info('Apply tags request from authenticated user', {
-      userId: req.user.id,
+    logger.info('Apply tags request (public)', {
       feature: 'bond-generator',
       operation: 'apply-tags',
     });

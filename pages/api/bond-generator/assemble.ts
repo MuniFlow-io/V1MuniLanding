@@ -121,8 +121,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       logger.info('CUSIP CSV converted successfully');
     }
 
-    logger.info('Bond assembly request from authenticated user', {
-      userId: req.user.id,
+    logger.info('Bond assembly request (public)', {
       maturityFileSize: maturityBuffer.length,
       cusipFileSize: cusipBuffer.length,
       maturityWasCSV: maturityFilename.toLowerCase().endsWith('.csv'),

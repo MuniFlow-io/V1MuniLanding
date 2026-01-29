@@ -77,14 +77,11 @@ async function handler(
   if (req.method !== 'POST') {
     logger.warn('Invalid method for upload-template', {
       method: req.method,
-      userId: req.user.id,
     });
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  logger.info('Template upload request from authenticated user', {
-    userId: req.user.id,
-  });
+  logger.info('Template upload request (public)');
 
   try {
     // Parse multipart form data
