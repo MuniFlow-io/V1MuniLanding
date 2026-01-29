@@ -79,9 +79,9 @@ export default function BondGeneratorWorkbenchPage() {
                   {step === 'assembly-check' && 'Step 5 of 5: Generate certificates'}
                 </p>
               </div>
-              <Link href="/bond-generator/guide">
+              <Link href="/bond-generator">
                 <Button variant="glass" size="medium">
-                  View Guide
+                  Back to Guide
                 </Button>
               </Link>
             </div>
@@ -213,7 +213,7 @@ export default function BondGeneratorWorkbenchPage() {
                   <div className="space-y-2">
                     <h3 className="font-semibold text-white">Questions?</h3>
                     <p className="text-sm text-gray-400 leading-relaxed">
-                      Review the <Link href="/bond-generator/guide" className="text-cyan-400 hover:underline">guide</Link> or <Link href="/contact?demo=true" className="text-cyan-400 hover:underline">request a walkthrough</Link>.
+                      Review the <Link href="/bond-generator" className="text-cyan-400 hover:underline">guide</Link> or <Link href="/contact?demo=true" className="text-cyan-400 hover:underline">get help</Link>.
                     </p>
                   </div>
                 </div>

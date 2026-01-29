@@ -8,24 +8,29 @@ import { Button } from "@/components/ui/Button";
 
 const intentOptions: RadioOption[] = [
   {
-    value: "try-app",
-    label: "Try the app",
-    description: "I want to test MuniFlow and give feedback",
+    value: "demo",
+    label: "Schedule a platform demo",
+    description: "See deal management, workflows, and term sheet tools in action",
   },
   {
-    value: "feedback",
-    label: "Share feedback",
-    description: "I've worked on bond deals and have thoughts",
+    value: "bond-generator-feedback",
+    label: "Give feedback on Bond Generator",
+    description: "I've used the tool and have thoughts to share",
+  },
+  {
+    value: "try-bond-generator",
+    label: "Help me try Bond Generator",
+    description: "I want to use the tool but need assistance getting started",
+  },
+  {
+    value: "waitlist",
+    label: "Join waitlist for new tools",
+    description: "Notify me when new tools launch",
   },
   {
     value: "pain-points",
-    label: "Discuss pain points",
-    description: "Here's what's broken in my current workflow",
-  },
-  {
-    value: "connect",
-    label: "Just connect",
-    description: "Interesting project, let's talk",
+    label: "Discuss workflow challenges",
+    description: "Let's talk about pain points in my current process",
   },
 ];
 
@@ -134,9 +139,14 @@ export const ContactForm = () => {
           </h2>
           <p className="text-xl text-gray-300 leading-relaxed">
             We&apos;ll get back to you soon.
-            {formData.intent === "try-app" && (
+            {formData.intent === "demo" && (
               <span className="block mt-2">
-                Since you want to try the app, we&apos;ll send you access details within 24 hours.
+                We&apos;ll send you demo scheduling options within 24 hours.
+              </span>
+            )}
+            {formData.intent === "try-bond-generator" && (
+              <span className="block mt-2">
+                We&apos;ll help you get started with Bond Generator and answer any questions.
               </span>
             )}
           </p>

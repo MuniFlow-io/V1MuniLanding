@@ -16,18 +16,57 @@ export default function BuildingPage() {
           
           <div className="max-w-4xl mx-auto text-center space-y-10 relative">
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
-              What we&apos;re <span className="text-cyan-400">building</span>.
+              Platform <span className="text-cyan-400">Vision</span>
             </h1>
             
             <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60" />
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              A shared system for structuring municipal bond deals—starting with the parts that matter most.
+              A comprehensive system for structuring municipal bond deals—we&apos;re building it tool by tool.
             </p>
 
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              MuniFlow is being developed by focusing on the core workflows that anchor every transaction: how a deal is set up, how key details are shared, and how terms stay aligned as the deal evolves.
+              We&apos;re starting with standalone tools that solve real problems today. The full platform brings them together into a unified workflow system.
             </p>
+          </div>
+        </section>
+
+        {/* Tools Shipped */}
+        <section className="py-20 px-6 bg-gray-950/50">
+          <div className="max-w-4xl mx-auto" data-aos="fade-up">
+            <Card variant="highlight" size="large">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-sm font-medium text-cyan-400 uppercase tracking-wider">Shipped & Available</span>
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-semibold mb-6 text-white leading-tight">
+                Bond Generator
+              </h2>
+              
+              <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-6">
+                Deterministic assembly of executed bond certificates from finalized inputs. Upload your bond form template, maturity schedule, and CUSIPs—the tool validates and mechanically assembles certificates.
+              </p>
+
+              <div className="pt-4">
+                <Link href="/bond-generator">
+                  <Button variant="secondary" size="medium">
+                    Try Bond Generator
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        {/* Divider */}
+        <section className="py-12 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-gray-700" />
+              <span className="text-sm text-gray-500 uppercase tracking-wider">Platform Features (In Development)</span>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent via-gray-700 to-gray-700" />
+            </div>
           </div>
         </section>
 
@@ -217,16 +256,22 @@ export default function BuildingPage() {
           
           <div className="max-w-3xl mx-auto text-center space-y-10 relative">
             <h2 className="text-4xl md:text-6xl font-semibold text-white leading-tight">
-              See a <span className="text-cyan-400">working example</span>.
+              Try the <span className="text-cyan-400">tools today</span>
             </h2>
             
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              If you work on municipal bond deals and this approach resonates, we&apos;d like to hear from you.
+              We&apos;re building the platform step by step. Start with the tools that are ready now.
             </p>
 
-            <div className="pt-6">
-              <Link href="/contact">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+              <Link href="/tools">
                 <Button variant="primary" size="large">
+                  See All Tools
+                </Button>
+              </Link>
+              
+              <Link href="/contact">
+                <Button variant="secondary" size="large">
                   Get in Touch
                 </Button>
               </Link>

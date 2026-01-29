@@ -10,8 +10,8 @@ import { authApi } from "@/modules/auth/api/authApi";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/credibility", label: "About" },
-  { href: "/building", label: "What We're Building" },
-  { href: "/bond-generator", label: "Bond Generator" },
+  { href: "/tools", label: "Tools" },
+  { href: "/platform-vision", label: "Platform Vision" },
   { href: "/contact", label: "Reach Out" },
 ];
 
