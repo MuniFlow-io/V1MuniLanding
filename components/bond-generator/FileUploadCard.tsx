@@ -52,6 +52,7 @@ export function FileUploadCard({
           maxSizeMB={maxSizeMB}
           isLoading={isLoading}
           error={null}
+          existingFile={uploadedFile}
           title={uploadTitle}
           requirements={requirements}
         />

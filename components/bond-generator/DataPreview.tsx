@@ -59,20 +59,11 @@ export function DataPreview({
           const maturityRows = maturityResult.rows || [];
           const cusipRows = cusipResult.rows || [];
           
-          // Create CUSIP lookup by maturity date
-          const cusipMap = new Map<string, string>();
-          cusipRows.forEach((row: Record<string, unknown>) => {
-            const maturityDate = String(row.maturity_date || '');
-            const cusip = String(row.cusip || '');
-            if (maturityDate && cusip) {
-              cusipMap.set(maturityDate, cusip);
-            }
-          });
-          
-          // Combine maturity data with CUSIPs
+          // Combine maturity data with CUSIPs by index (row-by-row matching)
+          // This preserves all CUSIPs even when multiple maturities share the same date
           const combined: TableRow[] = maturityRows.map((row: Record<string, unknown>, index: number) => {
             const maturityDate = String(row.maturity_date || '');
-            const cusip = cusipMap.get(maturityDate) || '';
+            const cusip = cusipRows[index] ? String(cusipRows[index].cusip || '') : '';
             
             return {
               id: `row-${index}`,
