@@ -59,19 +59,33 @@ export function DataPreview({
           const maturityRows = maturityResult.rows || [];
           const cusipRows = cusipResult.rows || [];
           
+          // Helper to merge statuses from both sources (error > warning > valid)
+          const mergeStatus = (
+            maturityStatus: unknown, 
+            cusipStatus: unknown
+          ): 'valid' | 'warning' | 'error' => {
+            const s1 = (maturityStatus as 'valid' | 'warning' | 'error') || 'valid';
+            const s2 = (cusipStatus as 'valid' | 'warning' | 'error') || 'valid';
+            
+            if (s1 === 'error' || s2 === 'error') return 'error';
+            if (s1 === 'warning' || s2 === 'warning') return 'warning';
+            return 'valid';
+          };
+          
           // Combine maturity data with CUSIPs by index (row-by-row matching)
-          // This preserves all CUSIPs even when multiple maturities share the same date
-          const combined: TableRow[] = maturityRows.map((row: Record<string, unknown>, index: number) => {
-            const maturityDate = String(row.maturity_date || '');
-            const cusip = cusipRows[index] ? String(cusipRows[index].cusip || '') : '';
+          // Use the maximum length to preserve all data from both sources
+          const maxLength = Math.max(maturityRows.length, cusipRows.length);
+          const combined: TableRow[] = Array.from({ length: maxLength }, (_, index) => {
+            const maturityRow = maturityRows[index];
+            const cusipRow = cusipRows[index];
             
             return {
               id: `row-${index}`,
-              maturity_date: maturityDate,
-              principal_amount: String(row.principal_amount || ''),
-              coupon_rate: String(row.coupon_rate || ''),
-              cusip: cusip,
-              _status: (row.status as 'valid' | 'warning' | 'error') || 'valid',
+              maturity_date: maturityRow ? String(maturityRow.maturity_date || '') : '',
+              principal_amount: maturityRow ? String(maturityRow.principal_amount || '') : '',
+              coupon_rate: maturityRow ? String(maturityRow.coupon_rate || '') : '',
+              cusip: cusipRow ? String(cusipRow.cusip || '') : '',
+              _status: mergeStatus(maturityRow?.status, cusipRow?.status),
             };
           });
           
