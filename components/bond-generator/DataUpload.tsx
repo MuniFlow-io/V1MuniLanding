@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { FileUpload } from "./FileUpload";
+import { FileUploadCard } from "./FileUploadCard";
 
 interface DataUploadProps {
   maturityFile: File | null;
@@ -45,67 +45,45 @@ export function DataUpload({
 
       {/* File Uploads */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Maturity Schedule */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-green-900/30 border border-green-700/40 flex items-center justify-center">
-              <span className="text-sm font-bold text-green-400">1</span>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">Maturity Schedule</h3>
-              <p className="text-xs text-gray-500">Principal amounts & dates</p>
-            </div>
-          </div>
-          
-          <div className="relative">
-            <FileUpload
-              onUpload={onMaturityUpload}
-              accept=".xlsx,.xls,.csv"
-              maxSizeMB={5}
-              isLoading={isLoading}
-              error={null}
-            />
-            
-            {maturityFile && (
-              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-green-500 border-2 border-gray-900 flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
-          </div>
-        </div>
+        <FileUploadCard
+          number="1"
+          title="Maturity Schedule"
+          subtitle="Principal amounts & dates"
+          uploadedFile={maturityFile}
+          onUpload={onMaturityUpload}
+          accept=".xlsx,.xls,.csv"
+          maxSizeMB={5}
+          isLoading={isLoading}
+          uploadTitle="Upload Maturity Schedule"
+          requirements={[
+            'Excel or CSV format only (.xlsx, .xls, .csv)',
+            'Maximum file size: 5MB',
+            'Must have exact column headings: Principal Amount, Interest Rate, Maturity Year',
+            'No extra columns or data beyond these three required fields',
+            'No PDFs accepted - must be structured spreadsheet data'
+          ]}
+          badgeColor="green"
+        />
 
-        {/* CUSIP File */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-900/30 border border-blue-700/40 flex items-center justify-center">
-              <span className="text-sm font-bold text-blue-400">2</span>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">CUSIP Schedule</h3>
-              <p className="text-xs text-gray-500">Security identifiers</p>
-            </div>
-          </div>
-          
-          <div className="relative">
-            <FileUpload
-              onUpload={onCusipUpload}
-              accept=".xlsx,.xls,.csv"
-              maxSizeMB={5}
-              isLoading={isLoading}
-              error={null}
-            />
-            
-            {cusipFile && (
-              <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-green-500 border-2 border-gray-900 flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
-          </div>
-        </div>
+        <FileUploadCard
+          number="2"
+          title="CUSIP Schedule"
+          subtitle="Security identifiers"
+          uploadedFile={cusipFile}
+          onUpload={onCusipUpload}
+          accept=".xlsx,.xls,.csv"
+          maxSizeMB={5}
+          isLoading={isLoading}
+          uploadTitle="Upload CUSIPs"
+          requirements={[
+            'Excel or CSV format only (.xlsx, .xls, .csv)',
+            'Maximum file size: 5MB',
+            'Must have a CUSIP column with proper 9-character CUSIP identifiers',
+            'CUSIPs must be in structured spreadsheet format',
+            'No PDFs accepted - cannot print email to PDF, must be structured data'
+          ]}
+          badgeColor="blue"
+        />
       </div>
 
       {/* Error Display */}
