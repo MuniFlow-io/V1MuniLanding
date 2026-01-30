@@ -51,7 +51,7 @@ export function DataPreview({
           body: cusipFormData,
         });
 
-        // Merge both datasets
+        // Merge both datasets using same logic as backend (maturity_date + series matching)
         if (maturityResponse.ok && cusipResponse.ok) {
           const maturityResult = await maturityResponse.json();
           const cusipResult = await cusipResponse.json();
@@ -72,21 +72,73 @@ export function DataPreview({
             return 'valid';
           };
           
-          // Combine maturity data with CUSIPs by index (row-by-row matching)
-          // Use the maximum length to preserve all data from both sources
-          const maxLength = Math.max(maturityRows.length, cusipRows.length);
-          const combined: TableRow[] = Array.from({ length: maxLength }, (_, index) => {
-            const maturityRow = maturityRows[index];
-            const cusipRow = cusipRows[index];
+          // Combine maturity data with CUSIPs using same matching logic as backend
+          // Join strategy: maturity_date + series (if present)
+          const combined: TableRow[] = [];
+          const unmatchedCusips = new Set<number>(cusipRows.map((_: unknown, i: number) => i));
+          
+          for (let matIdx = 0; matIdx < maturityRows.length; matIdx++) {
+            const maturityRow = maturityRows[matIdx];
+            const maturityDate = String(maturityRow.maturity_date || '');
+            const maturitySeries = maturityRow.series || null;
             
-            return {
-              id: `row-${index}`,
-              maturity_date: maturityRow ? String(maturityRow.maturity_date || '') : '',
-              principal_amount: maturityRow ? String(maturityRow.principal_amount || '') : '',
-              coupon_rate: maturityRow ? String(maturityRow.coupon_rate || '') : '',
-              cusip: cusipRow ? String(cusipRow.cusip || '') : '',
-              _status: mergeStatus(maturityRow?.status, cusipRow?.status),
-            };
+            // Find matching CUSIP(s) - same logic as backend mergeCusips()
+            const matchingCusipIndices: number[] = [];
+            cusipRows.forEach((cusipRow: Record<string, unknown>, cusipIdx: number) => {
+              const cusipDate = String(cusipRow.maturity_date || '');
+              const cusipSeries = cusipRow.series || null;
+              
+              // Match on maturity_date
+              if (cusipDate !== maturityDate) return;
+              
+              // If series exists on either side, must match
+              if (cusipSeries || maturitySeries) {
+                if (cusipSeries === maturitySeries) {
+                  matchingCusipIndices.push(cusipIdx);
+                }
+              } else {
+                matchingCusipIndices.push(cusipIdx);
+              }
+            });
+            
+            if (matchingCusipIndices.length === 0) {
+              // No CUSIP found - create row with maturity data only
+              combined.push({
+                id: `mat-${matIdx}`,
+                maturity_date: maturityDate,
+                principal_amount: String(maturityRow.principal_amount || ''),
+                coupon_rate: String(maturityRow.coupon_rate || ''),
+                cusip: '',
+                _status: 'warning', // No matching CUSIP
+              });
+            } else {
+              // Use first match (same as backend)
+              const cusipIdx = matchingCusipIndices[0];
+              const cusipRow = cusipRows[cusipIdx];
+              unmatchedCusips.delete(cusipIdx);
+              
+              combined.push({
+                id: `merged-${matIdx}`,
+                maturity_date: maturityDate,
+                principal_amount: String(maturityRow.principal_amount || ''),
+                coupon_rate: String(maturityRow.coupon_rate || ''),
+                cusip: String(cusipRow.cusip || ''),
+                _status: mergeStatus(maturityRow.status, cusipRow.status),
+              });
+            }
+          }
+          
+          // Add any unmatched CUSIPs at the end
+          unmatchedCusips.forEach((cusipIdx: number) => {
+            const cusipRow = cusipRows[cusipIdx] as Record<string, unknown>;
+            combined.push({
+              id: `cusip-${cusipIdx}`,
+              maturity_date: String(cusipRow.maturity_date || ''),
+              principal_amount: '',
+              coupon_rate: '',
+              cusip: String(cusipRow.cusip || ''),
+              _status: 'warning', // No matching maturity
+            });
           });
           
           setCombinedData(combined);
