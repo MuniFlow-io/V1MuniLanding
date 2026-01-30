@@ -1,20 +1,10 @@
 "use client";
 
-/**
- * Data Preview Step Component
- * 
- * ARCHITECTURE: Component (Layer 1) - DUMB
- * - Displays parsed maturity and CUSIP data in tables
- * - Allows inline editing of cells
- * - Shows validation status
- * - Fetches parsed data on mount
- * 
- * Clean, <150 lines, single responsibility
- */
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { EditableDataTable, type TableColumn, type TableRow } from "./EditableDataTable";
+import { EditableDataTable, type TableRow } from "./EditableDataTable";
+import { InfoBanner } from "./InfoBanner";
+import { bondScheduleColumns } from "./bondScheduleColumns";
 
 interface DataPreviewProps {
   maturityFile: File | null;
@@ -31,8 +21,7 @@ export function DataPreview({
   onBack,
   isLoading = false,
 }: DataPreviewProps) {
-  const [maturityData, setMaturityData] = useState<TableRow[]>([]);
-  const [cusipData, setCusipData] = useState<TableRow[]>([]);
+  const [combinedData, setCombinedData] = useState<TableRow[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
   // Fetch parsed data when files are available
@@ -42,7 +31,7 @@ export function DataPreview({
     async function fetchParsedData() {
       setIsLoadingData(true);
       try {
-        // Parse maturity schedule (maturityFile is guaranteed non-null by guard above)
+        // Parse maturity schedule
         const maturityFormData = new FormData();
         maturityFormData.append('maturityFile', maturityFile as File);
 
@@ -52,7 +41,7 @@ export function DataPreview({
           body: maturityFormData,
         });
 
-        // Parse CUSIP schedule (cusipFile is guaranteed non-null by guard above)
+        // Parse CUSIP schedule
         const cusipFormData = new FormData();
         cusipFormData.append('cusipFile', cusipFile as File);
 
@@ -62,33 +51,99 @@ export function DataPreview({
           body: cusipFormData,
         });
 
-        if (maturityResponse.ok) {
+        // Merge both datasets using same logic as backend (maturity_date + series matching)
+        if (maturityResponse.ok && cusipResponse.ok) {
           const maturityResult = await maturityResponse.json();
-          const rows: TableRow[] = (maturityResult.rows || []).map((row: Record<string, unknown>, index: number) => ({
-            id: `mat-${index}`,
-            maturity_date: String(row.maturity_date || ''),
-            principal_amount: String(row.principal_amount || ''),
-            coupon_rate: String(row.coupon_rate || ''),
-            dated_date: String(row.dated_date || ''),
-            series: String(row.series || ''),
-            _status: (row.status as 'valid' | 'warning' | 'error') || 'valid',
-          }));
-          setMaturityData(rows);
-        }
-
-        if (cusipResponse.ok) {
           const cusipResult = await cusipResponse.json();
-          const rows: TableRow[] = (cusipResult.rows || []).map((row: Record<string, unknown>, index: number) => ({
-            id: `cusip-${index}`,
-            cusip: String(row.cusip || ''),
-            maturity_date: String(row.maturity_date || ''),
-            series: String(row.series || ''),
-            _status: (row.status as 'valid' | 'warning' | 'error') || 'valid',
-          }));
-          setCusipData(rows);
+          
+          const maturityRows = maturityResult.rows || [];
+          const cusipRows = cusipResult.rows || [];
+          
+          // Helper to merge statuses from both sources (error > warning > valid)
+          const mergeStatus = (
+            maturityStatus: unknown, 
+            cusipStatus: unknown
+          ): 'valid' | 'warning' | 'error' => {
+            const s1 = (maturityStatus as 'valid' | 'warning' | 'error') || 'valid';
+            const s2 = (cusipStatus as 'valid' | 'warning' | 'error') || 'valid';
+            
+            if (s1 === 'error' || s2 === 'error') return 'error';
+            if (s1 === 'warning' || s2 === 'warning') return 'warning';
+            return 'valid';
+          };
+          
+          // Combine maturity data with CUSIPs using same matching logic as backend
+          // Join strategy: maturity_date + series (if present)
+          const combined: TableRow[] = [];
+          const unmatchedCusips = new Set<number>(cusipRows.map((_: unknown, i: number) => i));
+          
+          for (let matIdx = 0; matIdx < maturityRows.length; matIdx++) {
+            const maturityRow = maturityRows[matIdx];
+            const maturityDate = String(maturityRow.maturity_date || '');
+            const maturitySeries = maturityRow.series || null;
+            
+            // Find matching CUSIP(s) - same logic as backend mergeCusips()
+            const matchingCusipIndices: number[] = [];
+            cusipRows.forEach((cusipRow: Record<string, unknown>, cusipIdx: number) => {
+              const cusipDate = String(cusipRow.maturity_date || '');
+              const cusipSeries = cusipRow.series || null;
+              
+              // Match on maturity_date
+              if (cusipDate !== maturityDate) return;
+              
+              // If series exists on either side, must match
+              if (cusipSeries || maturitySeries) {
+                if (cusipSeries === maturitySeries) {
+                  matchingCusipIndices.push(cusipIdx);
+                }
+              } else {
+                matchingCusipIndices.push(cusipIdx);
+              }
+            });
+            
+            if (matchingCusipIndices.length === 0) {
+              // No CUSIP found - create row with maturity data only
+              combined.push({
+                id: `mat-${matIdx}`,
+                maturity_date: maturityDate,
+                principal_amount: String(maturityRow.principal_amount || ''),
+                coupon_rate: String(maturityRow.coupon_rate || ''),
+                cusip: '',
+                _status: 'warning', // No matching CUSIP
+              });
+            } else {
+              // Use first match (same as backend)
+              const cusipIdx = matchingCusipIndices[0];
+              const cusipRow = cusipRows[cusipIdx];
+              unmatchedCusips.delete(cusipIdx);
+              
+              combined.push({
+                id: `merged-${matIdx}`,
+                maturity_date: maturityDate,
+                principal_amount: String(maturityRow.principal_amount || ''),
+                coupon_rate: String(maturityRow.coupon_rate || ''),
+                cusip: String(cusipRow.cusip || ''),
+                _status: mergeStatus(maturityRow.status, cusipRow.status),
+              });
+            }
+          }
+          
+          // Add any unmatched CUSIPs at the end
+          unmatchedCusips.forEach((cusipIdx: number) => {
+            const cusipRow = cusipRows[cusipIdx] as Record<string, unknown>;
+            combined.push({
+              id: `cusip-${cusipIdx}`,
+              maturity_date: String(cusipRow.maturity_date || ''),
+              principal_amount: '',
+              coupon_rate: '',
+              cusip: String(cusipRow.cusip || ''),
+              _status: 'warning', // No matching maturity
+            });
+          });
+          
+          setCombinedData(combined);
         }
       } catch {
-        // Error fetching parsed data - could show error message to user
         setIsLoadingData(false);
       } finally {
         setIsLoadingData(false);
@@ -98,32 +153,9 @@ export function DataPreview({
     fetchParsedData();
   }, [maturityFile, cusipFile]);
 
-  // Column definitions
-  const maturityColumns: TableColumn[] = [
-    { key: 'maturity_date', label: 'Maturity Date', type: 'date', width: '15%' },
-    { key: 'principal_amount', label: 'Principal Amount', type: 'number', width: '20%' },
-    { key: 'coupon_rate', label: 'Coupon Rate (%)', type: 'number', width: '15%' },
-    { key: 'dated_date', label: 'Dated Date', type: 'date', width: '15%' },
-    { key: 'series', label: 'Series', width: '15%' },
-  ];
-
-  const cusipColumns: TableColumn[] = [
-    { key: 'cusip', label: 'CUSIP Number', width: '30%' },
-    { key: 'maturity_date', label: 'Maturity Date', type: 'date', width: '30%' },
-    { key: 'series', label: 'Series', width: '20%' },
-  ];
-
   // Handle cell edits
-  const handleMaturityEdit = (rowId: string, columnKey: string, newValue: string) => {
-    setMaturityData(prev => 
-      prev.map(row => 
-        row.id === rowId ? { ...row, [columnKey]: newValue } : row
-      )
-    );
-  };
-
-  const handleCusipEdit = (rowId: string, columnKey: string, newValue: string) => {
-    setCusipData(prev => 
+  const handleCellEdit = (rowId: string, columnKey: string, newValue: string) => {
+    setCombinedData(prev => 
       prev.map(row => 
         row.id === rowId ? { ...row, [columnKey]: newValue } : row
       )
@@ -132,36 +164,17 @@ export function DataPreview({
 
   return (
     <div className="space-y-6">
-      {/* Info Banner */}
-      <div className="bg-green-900/20 border border-green-700/40 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-green-300">Review Parsed Data</p>
-            <p className="text-xs text-green-200/80 mt-1">
-              Check the data below. Click any cell to edit if there are parsing errors.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Maturity Schedule Table */}
-      <EditableDataTable
-        title="Maturity Schedule"
-        data={maturityData}
-        columns={maturityColumns}
-        onCellEdit={handleMaturityEdit}
-        isLoading={isLoadingData}
+      <InfoBanner
+        type="success"
+        title="Review Bond Schedule"
+        description="Complete bond schedule with maturity details and CUSIPs. Click any cell to edit if needed."
       />
 
-      {/* CUSIP Schedule Table */}
       <EditableDataTable
-        title="CUSIP Schedule"
-        data={cusipData}
-        columns={cusipColumns}
-        onCellEdit={handleCusipEdit}
+        title="Bond Schedule"
+        data={combinedData}
+        columns={bondScheduleColumns}
+        onCellEdit={handleCellEdit}
         isLoading={isLoadingData}
       />
 
