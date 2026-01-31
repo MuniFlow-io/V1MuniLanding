@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,13 @@ const navLinks = [
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { user } = useAuth();
+  const { user, checkSession } = useAuth();
+  
+  // ✅ PERFORMANCE: Check session when navigation mounts (deferred)
+  // This lets the page render first, then checks auth in background
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
   
   const handleSignOut = async () => {
     await authApi.signOut();

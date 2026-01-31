@@ -38,6 +38,7 @@ export function TemplateTagging({
   const [isSaving, setIsSaving] = useState(false);
   const [taggedPositions, setTaggedPositions] = useState<TagPosition[]>([]);
   const [assignedTags, setAssignedTags] = useState<Map<BondTag, boolean>>(new Map());
+  const [shouldLoadPreview, setShouldLoadPreview] = useState(false); // ✅ PERFORMANCE: Defer preview load
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Function to restore visual tags in iframe after HTML loads
@@ -67,6 +68,16 @@ export function TemplateTagging({
     });
   };
   
+  // ✅ PERFORMANCE: Defer preview loading - don't block initial render
+  // Load preview after 1.5 seconds or when user is likely ready
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldLoadPreview(true);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // ✅ Restore tag positions from draft on mount
   useEffect(() => {
     if (restoredTagMap?.tags) {
@@ -85,9 +96,9 @@ export function TemplateTagging({
     }
   }, [restoredTagMap]);
 
-  // Fetch preview HTML when template file changes
+  // Fetch preview HTML when template file changes (DEFERRED)
   useEffect(() => {
-    if (!templateFile) return;
+    if (!templateFile || !shouldLoadPreview) return;
 
     async function loadPreview() {
       setIsLoadingPreview(true);

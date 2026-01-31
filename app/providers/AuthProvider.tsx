@@ -32,30 +32,47 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  checkSession: () => Promise<void>; // ✅ PERFORMANCE: Lazy auth check
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // ✅ PERFORMANCE: Start false (lazy)
+  const [hasCheckedSession, setHasCheckedSession] = useState(false);
 
-  useEffect(() => {
-    // Check for existing session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
+  // ✅ PERFORMANCE: Expose function for components that need auth
+  // Don't check on every page load - only when needed
+  const checkSession = async () => {
+    if (isLoading || hasCheckedSession) return; // Prevent duplicate checks
+    
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
       const userData = session?.user 
         ? { id: session.user.id, email: session.user.email || '' }
         : null;
       
       setUser(userData);
-      setIsLoading(false);
+      setHasCheckedSession(true);
       
       if (userData) {
-        logger.info('Existing session found', { userId: userData.id });
+        logger.info('Session check completed', { userId: userData.id });
       }
-    });
+    } catch (error) {
+      logger.error('Session check failed', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Listen for auth state changes
+  useEffect(() => {
+    // ✅ PERFORMANCE: Don't check session on mount - only listen to auth changes
+    // Components that need auth will call checkSession() explicitly
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         const userData = session?.user 
@@ -65,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logger.info('Auth state changed', { event, userId: userData?.id });
         
         setUser(userData);
+        setHasCheckedSession(true); // Mark as checked when auth changes
         
         // Reset preview count when user signs in
         if (event === 'SIGNED_IN' && userData) {
@@ -82,10 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isLoading, hasCheckedSession]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, checkSession }}>
       {children}
     </AuthContext.Provider>
   );

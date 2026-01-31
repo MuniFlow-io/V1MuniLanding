@@ -71,7 +71,7 @@ export function useBondGenerator(): UseBondGeneratorResult {
   // =========================================================================
   // AUTH CONTEXT
   // =========================================================================
-  const { user } = useAuth();
+  const { user, checkSession } = useAuth();
   
   // =========================================================================
   // STATE
@@ -504,6 +504,10 @@ export function useBondGenerator(): UseBondGeneratorResult {
       setError('All files required');
       return;
     }
+
+    // ✅ PERFORMANCE: Check session before generating (auth required for download)
+    // This is the ONLY place we need auth in the bond generator
+    await checkSession();
 
     // Bond info (issuer, title, interest dates) is OPTIONAL - no validation needed
     // Users can choose to tag these fields or not during the tagging step
