@@ -35,6 +35,7 @@ export function TemplateTagging({
 }: TemplateTaggingProps) {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [taggedPositions, setTaggedPositions] = useState<TagPosition[]>([]);
   const [assignedTags, setAssignedTags] = useState<Map<BondTag, boolean>>(new Map());
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -152,31 +153,65 @@ export function TemplateTagging({
   const allRequiredTagsAssigned = REQUIRED_TAGS.every(tag => assignedTags.get(tag));
 
   // Handle continue (validate and proceed)
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!allRequiredTagsAssigned) {
       alert('Please assign all required tags before continuing');
       return;
     }
 
-    if (templateFile && iframeRef.current?.contentDocument) {
-      // ✅ Get current HTML from iframe (includes all visual tags)
-      const currentTaggedHtml = iframeRef.current.contentDocument.documentElement.outerHTML;
-      
-      // Build TagMap from tagged positions  
+    if (!templateFile) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Step 1: Build tag assignments from tagged positions
+      const assignments = taggedPositions.map(t => ({
+        blankId: `tag-${t.tag}`,
+        blankText: t.text,
+        tagName: t.tag,
+      }));
+
+      // Step 2: Call backend to insert {{TAGS}} into DOCX
+      const formData = new FormData();
+      formData.append('template', templateFile);
+      formData.append('assignments', JSON.stringify(assignments));
+
+      const response = await fetch('/api/bond-generator/template/apply-tags', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to apply tags to template');
+      }
+
+      // Step 3: Get the tagged DOCX file from backend
+      const blob = await response.blob();
+      const taggedFile = new File([blob], templateFile.name, {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
+
+      // Step 4: Build TagMap for persistence
       const tagMap: TagMap = {
         templateId: templateFile.name,
-        templateHash: '', // Optional - could calculate hash if needed
+        templateHash: '',
         tags: taggedPositions.map(t => ({
           tag: t.tag,
           position: t.position,
         })),
         filename: templateFile.name,
-        size: templateFile.size,
-        taggedHtml: currentTaggedHtml, // ✅ Save tagged HTML for persistence
+        size: taggedFile.size,
+        taggedHtml: iframeRef.current?.contentDocument?.documentElement.outerHTML || '',
       };
-      
-      // Pass BOTH file AND tagMap to hook
-      onComplete(templateFile, tagMap);
+
+      // Step 5: Pass TAGGED file to hook (not original!)
+      onComplete(taggedFile, tagMap);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to save tags');
+      setIsSaving(false);
     }
   };
 
@@ -224,9 +259,9 @@ export function TemplateTagging({
             variant="primary" 
             size="medium"
             onClick={handleContinue}
-            disabled={isLoading || !allRequiredTagsAssigned}
+            disabled={isLoading || isSaving || !allRequiredTagsAssigned}
           >
-            {isLoading ? 'Processing...' : 'Continue →'}
+            {isLoading || isSaving ? 'Processing...' : 'Continue →'}
           </Button>
         </div>
       </div>
